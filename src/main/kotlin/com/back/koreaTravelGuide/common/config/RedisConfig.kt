@@ -47,7 +47,6 @@ class RedisConfig {
         connectionFactory: RedisConnectionFactory,
         objectMapper: ObjectMapper,
     ): CacheManager {
-
         // 각 캐시 타입별 Serializer 생성
         val tourResponseSerializer = Jackson2JsonRedisSerializer<TourResponse>(objectMapper, TourResponse::class.java)
         val tourDetailResponseSerializer = Jackson2JsonRedisSerializer<TourDetailResponse>(objectMapper, TourDetailResponse::class.java)
