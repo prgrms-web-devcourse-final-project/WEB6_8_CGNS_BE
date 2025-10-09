@@ -16,8 +16,8 @@ interface UserRepository : JpaRepository<User, Long> {
 
     fun findByEmail(email: String): User?
 
-    fun findByRoleAndLocationContains(
+    fun findByRoleAndLocation(
         role: UserRole,
-        location: String,
+        location: com.back.koreaTravelGuide.domain.user.enums.Region,
     ): List<User>
 }

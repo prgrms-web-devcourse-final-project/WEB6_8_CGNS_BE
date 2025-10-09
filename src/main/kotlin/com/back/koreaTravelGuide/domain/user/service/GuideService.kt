@@ -2,6 +2,7 @@ package com.back.koreaTravelGuide.domain.guide.service
 
 import com.back.koreaTravelGuide.domain.user.dto.request.GuideUpdateRequest
 import com.back.koreaTravelGuide.domain.user.dto.response.GuideResponse
+import com.back.koreaTravelGuide.domain.user.enums.Region
 import com.back.koreaTravelGuide.domain.user.enums.UserRole
 import com.back.koreaTravelGuide.domain.user.repository.UserRepository
 import org.springframework.stereotype.Service
@@ -52,7 +53,14 @@ class GuideService(
 
     @Transactional(readOnly = true)
     fun findGuidesByRegion(region: String): List<GuideResponse> {
-        val guides = userRepository.findByRoleAndLocationContains(UserRole.GUIDE, region)
+        // String을 Region enum으로 변환 (한글 displayName 또는 영문 enum name 둘 다 지원)
+        val regionEnum =
+            Region.values().find {
+                it.displayName.equals(region, ignoreCase = true) ||
+                    it.name.equals(region, ignoreCase = true)
+            } ?: return emptyList()
+
+        val guides = userRepository.findByRoleAndLocation(UserRole.GUIDE, regionEnum)
         return guides.map { GuideResponse.from(it) }
     }
 }
