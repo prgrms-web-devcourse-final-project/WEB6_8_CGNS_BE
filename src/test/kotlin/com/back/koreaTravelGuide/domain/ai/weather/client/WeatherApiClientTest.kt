@@ -1,91 +1,94 @@
+
 import com.back.koreaTravelGuide.KoreaTravelGuideApplication
 import com.back.koreaTravelGuide.config.TestConfig
-import com.back.koreaTravelGuide.domain.ai.weather.client.WeatherApiClient
-import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Assumptions.assumeTrue
+import com.back.koreaTravelGuide.domain.ai.weather.dto.MidForecastDto
+import com.back.koreaTravelGuide.domain.ai.weather.dto.TemperatureAndLandForecastDto
+import com.back.koreaTravelGuide.domain.ai.weather.service.WeatherService
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
+import org.mockito.Mockito.`when`
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Import
+import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
+import org.springframework.test.context.bean.override.mockito.MockitoBean
+import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers.print
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import org.springframework.transaction.annotation.Transactional
 
 /**
  * 실제 기상청 API 상태를 확인하기 위한 통합 테스트.
  */
 @SpringBootTest(classes = [KoreaTravelGuideApplication::class])
+@AutoConfigureMockMvc(addFilters = false)
 @ActiveProfiles("test")
 @Import(TestConfig::class)
+@Transactional
 class WeatherApiClientTest {
     @Autowired
-    private lateinit var weatherApiClient: WeatherApiClient
+    private lateinit var mockMvc: MockMvc
 
-    @Value("\${weather.api.key}")
-    private lateinit var serviceKey: String
-
-    private fun getCurrentBaseTime(): String {
-        val now = LocalDateTime.now()
-        val baseHour = if (now.hour >= 6) "0600" else "1800"
-        val date = if (now.hour >= 6) now else now.minusDays(1)
-        return date.format(DateTimeFormatter.ofPattern("yyyyMMdd")) + baseHour
-    }
+    @MockitoBean
+    private lateinit var weatherService: WeatherService
 
     @DisplayName("fetchMidForecast - 실제 기상청 API 중기전망조회 (데이터 기대)")
     @Test
     fun fetchMidForecastTest() {
-        assumeTrue(serviceKey.isNotBlank() && !serviceKey.contains("WEATHER_API_KEY")) {
-            "API 키가 설정되지 않아 테스트를 건너뜁니다."
-        }
+        val mockData =
+            listOf(
+                MidForecastDto(
+                    regionCode = "11B00000",
+                    baseTime = "2025101006",
+                    precipitation = "맑음",
+                    temperature = "평년과 비슷",
+                    maritime = null,
+                    variability = null,
+                ),
+            )
+        `when`(weatherService.getWeatherForecast()).thenReturn(mockData)
 
-        val regionId = "11B00000"
-        val baseTime = getCurrentBaseTime()
-
-        println("=== Test Parameters ===")
-        println("regionId: $regionId")
-        println("baseTime: $baseTime")
-
-        val result = weatherApiClient.fetchMidForecast(regionId, baseTime)
-        println("=== Result ===")
-        println("result: $result")
-
-        // 현재 API 응답이 null을 반환하는 것이 정상일 수 있으므로 테스트 통과
-        // assertThat(result).isNotNull()
+        // when & then - API 호출 및 검증
+        mockMvc.perform(
+            get("/weather/test1")
+                .contentType(MediaType.APPLICATION_JSON),
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$[0].regionCode").value("11B00000"))
+            .andExpect(jsonPath("$[0].precipitation").value("맑음"))
+            .andDo(print()) // 결과 출력
     }
 
-    @DisplayName("fetchTemperature - 실제 기상청 API 중기기온조회 (데이터 기대)")
+    @DisplayName("TemperatureAndLandForecast - 실제 기상청 API 중기기온조회 + 중기육상예보조회(데이터 기대)")
     @Test
     fun fetchTemperatureTest() {
-        assumeTrue(serviceKey.isNotBlank() && !serviceKey.contains("WEATHER_API_KEY")) {
-            "API 키가 설정되지 않아 테스트를 건너뜁니다."
-        }
+        // given
+        val mockData =
+            listOf(
+                TemperatureAndLandForecastDto(
+                    regionCode = "11B10101",
+                    baseTime = "2025101006",
+                    minTemp = 10,
+                    maxTemp = 20,
+                    minTempRange = "8~12",
+                    maxTempRange = "18~22",
+                    amRainPercent = 30,
+                    pmRainPercent = 20,
+                    amWeather = "맑음",
+                    pmWeather = "구름많음",
+                ),
+            )
+        `when`(weatherService.getTemperatureAndLandForecast("11B10101")).thenReturn(mockData)
 
-        val regionId = "11B10101"
-        val baseTime = getCurrentBaseTime()
-
-        val result = weatherApiClient.fetchTemperature(regionId, baseTime)
-        println("=== Result ===")
-        println("result: $result")
-
-        assertThat(result).isNotNull()
-    }
-
-    @DisplayName("fetchLandForecast - 실제 기상청 API 중기육상예보조회 (데이터 기대)")
-    @Test
-    fun fetchLandForecastTest() {
-        assumeTrue(serviceKey.isNotBlank() && !serviceKey.contains("WEATHER_API_KEY")) {
-            "API 키가 설정되지 않아 테스트를 건너뜁니다."
-        }
-
-        val regionId = "11B00000"
-        val baseTime = getCurrentBaseTime()
-
-        val result = weatherApiClient.fetchLandForecast(regionId, baseTime)
-        println("=== Result ===")
-        println("result: $result")
-
-        assertThat(result).isNotNull()
+        // when & then
+        mockMvc.perform(get("/weather/test2"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$[0].regionCode").value("11B10101"))
+            .andExpect(jsonPath("$[0].minTemp").value(10))
+            .andDo(print())
     }
 }
