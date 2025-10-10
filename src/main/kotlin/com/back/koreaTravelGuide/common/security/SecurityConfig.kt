@@ -63,7 +63,10 @@ class SecurityConfig(
 
             authorizeHttpRequests {
                 authorize("/h2-console/**", permitAll)
-                authorize("/swagger-ui/**", "/v3/api-docs/**", permitAll)
+                authorize("/swagger-ui.html", permitAll)
+                authorize("/swagger-ui/**", permitAll)
+                authorize("/api-docs/**", permitAll)
+                authorize("/webjars/swagger-ui/**", permitAll)
                 authorize("/api/auth/**", permitAll)
                 authorize("/actuator/health", permitAll)
                 authorize("/weather/test1", permitAll)

@@ -37,6 +37,7 @@ class User(
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     var role: UserRole = UserRole.USER,
+    @Enumerated(EnumType.STRING)
     @Column
     var location: Region? = null,
     @Column(columnDefinition = "TEXT")
