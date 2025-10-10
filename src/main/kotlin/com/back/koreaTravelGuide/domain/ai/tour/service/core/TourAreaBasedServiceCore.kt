@@ -15,6 +15,7 @@ class TourAreaBasedServiceCore(
     @Cacheable(
         "tourAreaBased",
         key = "#tourParams.contentTypeId + '_' + #tourParams.areaCode + '_' + #tourParams.sigunguCode",
+        unless = "#result == null",
     )
     override fun fetchAreaBasedTours(tourParams: TourParams): TourResponse {
         if (

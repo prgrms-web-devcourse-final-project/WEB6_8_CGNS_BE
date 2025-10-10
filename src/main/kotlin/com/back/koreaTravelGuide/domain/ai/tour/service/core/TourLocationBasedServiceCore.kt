@@ -18,6 +18,7 @@ class TourLocationBasedServiceCore(
         key =
             "#tourParams.contentTypeId + '_' + #tourParams.areaCode + '_' + #tourParams.sigunguCode + " +
                 "'_' + #locationParams.mapX + '_' + #locationParams.mapY + '_' + #locationParams.radius",
+        unless = "#result == null",
     )
     override fun fetchLocationBasedTours(
         tourParams: TourParams,
