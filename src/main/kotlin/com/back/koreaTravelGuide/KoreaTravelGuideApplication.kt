@@ -4,8 +4,10 @@ import io.github.cdimascio.dotenv.dotenv
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.cache.annotation.EnableCaching
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 
 @EnableCaching
+@EnableJpaRepositories(basePackages = ["com.back.koreaTravelGuide.domain"])
 @SpringBootApplication(scanBasePackages = ["com.back.koreaTravelGuide"])
 class KoreaTravelGuideApplication
 
