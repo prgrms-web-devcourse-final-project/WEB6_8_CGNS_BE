@@ -1,6 +1,5 @@
 package com.back.koreaTravelGuide.domain.user.entity
 
-import com.back.koreaTravelGuide.domain.user.enums.Region
 import com.back.koreaTravelGuide.domain.user.enums.UserRole
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -39,7 +38,7 @@ class User(
     var role: UserRole = UserRole.USER,
     @Enumerated(EnumType.STRING)
     @Column
-    var location: Region? = null,
+    var location: String? = null,
     @Column(columnDefinition = "TEXT")
     var description: String? = null,
     @CreatedDate
