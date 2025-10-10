@@ -55,7 +55,13 @@ class GuideService(
     // String -> Region enum 변환 추가
     @Transactional(readOnly = true)
     fun findGuidesByRegion(region: String): List<GuideResponse> {
-        val regionEnum = Region.valueOf(region.uppercase())
+        // String을 Region enum으로 변환 (한글 displayName 또는 영문 enum name 둘 다 지원)
+        val regionEnum =
+            Region.entries.find {
+                it.displayName.equals(region, ignoreCase = true) ||
+                    it.name.equals(region, ignoreCase = true)
+            } ?: return emptyList()
+
         val guides = userRepository.findByRoleAndLocation(UserRole.GUIDE, regionEnum)
         return guides.map { GuideResponse.from(it) }
     }
