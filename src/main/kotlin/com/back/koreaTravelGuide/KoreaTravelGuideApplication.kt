@@ -2,20 +2,15 @@ package com.back.koreaTravelGuide
 
 import io.github.cdimascio.dotenv.dotenv
 import org.springframework.boot.autoconfigure.SpringBootApplication
-import org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration
 import org.springframework.boot.runApplication
 import org.springframework.cache.annotation.EnableCaching
-import org.springframework.scheduling.annotation.EnableScheduling
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories
+import org.springframework.scheduling.annotation.EnableScheduling
 
 @EnableCaching
 @EnableScheduling
-@SpringBootApplication(scanBasePackages = ["com.back.koreaTravelGuide"])
 @EnableJpaRepositories(basePackages = ["com.back.koreaTravelGuide.domain"])
-@SpringBootApplication(
-    scanBasePackages = ["com.back.koreaTravelGuide"],
-    exclude = [RedisRepositoriesAutoConfiguration::class],
-)
+@SpringBootApplication(scanBasePackages = ["com.back.koreaTravelGuide"])
 class KoreaTravelGuideApplication
 
 fun main(args: Array<String>) {
