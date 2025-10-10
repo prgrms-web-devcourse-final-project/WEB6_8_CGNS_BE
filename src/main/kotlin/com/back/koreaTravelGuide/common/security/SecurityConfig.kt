@@ -11,6 +11,9 @@ import org.springframework.security.config.annotation.web.invoke
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import org.springframework.web.cors.CorsConfiguration
+import org.springframework.web.cors.CorsConfigurationSource
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 
 @Configuration
 class SecurityConfig(
@@ -27,6 +30,7 @@ class SecurityConfig(
 
         http {
             csrf { disable() }
+            cors { }
             formLogin { disable() }
             httpBasic { disable() }
             logout { disable() }
@@ -77,5 +81,26 @@ class SecurityConfig(
         }
 
         return http.build()
+    }
+
+    @Bean
+    fun corsConfigurationSource(): CorsConfigurationSource {
+        return UrlBasedCorsConfigurationSource().apply {
+            registerCorsConfiguration(
+                "/**",
+                CorsConfiguration().apply {
+                    allowedOriginPatterns =
+                        listOf(
+                            "http://localhost:3000",
+                            "http://localhost:63342",
+                            // 배포주소
+                        )
+                    allowedMethods = listOf("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
+                    allowedHeaders = listOf("*")
+                    allowCredentials = true
+                    maxAge = 3600
+                },
+            )
+        }
     }
 }
