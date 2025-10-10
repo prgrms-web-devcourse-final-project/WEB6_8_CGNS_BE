@@ -51,6 +51,8 @@ class GuideService(
         return GuideResponse.from(userRepository.save(user))
     }
 
+    // 김지원: 10월 4일 임시 수정 - upstream merge 후 Region enum 타입 불일치 해결
+    // String -> Region enum 변환 추가
     @Transactional(readOnly = true)
     fun findGuidesByRegion(region: String): List<GuideResponse> {
         // String을 Region enum으로 변환 (한글 displayName 또는 영문 enum name 둘 다 지원)

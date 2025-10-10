@@ -1,6 +1,7 @@
 package com.back.koreaTravelGuide.domain.user.repository
 
 import com.back.koreaTravelGuide.domain.user.entity.User
+import com.back.koreaTravelGuide.domain.user.enums.Region
 import com.back.koreaTravelGuide.domain.user.enums.UserRole
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
