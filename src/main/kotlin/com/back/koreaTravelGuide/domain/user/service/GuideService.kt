@@ -57,7 +57,7 @@ class GuideService(
     fun findGuidesByRegion(region: String): List<GuideResponse> {
         // String을 Region enum으로 변환 (한글 displayName 또는 영문 enum name 둘 다 지원)
         val regionEnum =
-            Region.entries.find {
+            Region.values().find {
                 it.displayName.equals(region, ignoreCase = true) ||
                     it.name.equals(region, ignoreCase = true)
             } ?: return emptyList()
