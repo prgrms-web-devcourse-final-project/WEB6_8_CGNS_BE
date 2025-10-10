@@ -17,8 +17,11 @@ interface UserRepository : JpaRepository<User, Long> {
 
     fun findByEmail(email: String): User?
 
+    // 김지원: 10월 4일 임시 수정 - upstream merge 후 Region enum 타입 불일치 해결
+    // findByRoleAndLocationContains -> findByRoleAndLocation으로 변경
+    // location 파라미터: String -> Region enum
     fun findByRoleAndLocation(
         role: UserRole,
-        location: com.back.koreaTravelGuide.domain.user.enums.Region,
+        location: Region,
     ): List<User>
 }
