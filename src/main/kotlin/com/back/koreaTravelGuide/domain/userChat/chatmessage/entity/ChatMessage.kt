@@ -17,7 +17,7 @@ import java.time.ZonedDateTime
 )
 data class ChatMessage(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null,
+    var id: Long? = null,
     @Column(name = "room_id", nullable = false)
     val roomId: Long,
     @Column(name = "sender_id", nullable = false)
