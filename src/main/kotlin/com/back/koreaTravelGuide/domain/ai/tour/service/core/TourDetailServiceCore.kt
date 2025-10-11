@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service
 class TourDetailServiceCore(
     private val tourApiClient: TourApiClient,
 ) : TourDetailUseCase {
-    @Cacheable("tourDetail", key = "#detailParams.contentId")
+    @Cacheable("tourDetail", key = "#detailParams.contentId", unless = "#result == null")
     override fun fetchTourDetail(detailParams: TourDetailParams): TourDetailResponse {
         if (detailParams.contentId == "127974") {
             return PRESET_DETAIL_RESPONSE
