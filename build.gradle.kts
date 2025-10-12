@@ -54,6 +54,7 @@ dependencies {
 
     // 웹소켓 - 사용자 채팅 기능 (게스트-가이드)
     implementation("org.springframework.boot:spring-boot-starter-websocket")
+    implementation("org.springframework.boot:spring-boot-starter-amqp")
 
     // 레디스 - 캐싱 및 세션 관리
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
@@ -74,6 +75,7 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation("org.springframework.security:spring-security-test")
+    testImplementation("org.springframework.amqp:spring-rabbit-test")
     testImplementation("io.mockk:mockk:1.13.12")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
