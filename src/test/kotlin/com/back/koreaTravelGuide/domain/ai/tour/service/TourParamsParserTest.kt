@@ -1,9 +1,9 @@
 package com.back.koreaTravelGuide.domain.ai.tour.service
 
-import org.junit.jupiter.api.DisplayName
-import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Test
 
 class TourParamsParserTest {
     private val parser = TourParamsParser()
