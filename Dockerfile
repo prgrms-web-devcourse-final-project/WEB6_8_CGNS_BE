@@ -17,8 +17,8 @@ RUN gradle dependencies --no-daemon
 COPY .env .
 COPY src src
 
-# 애플리케이션 빌드 (테스트 및 ktlint 스킵)
-RUN gradle build -x test -x ktlintTestSourceSetCheck -x ktlintMainSourceSetCheck -x ktlintKotlinScriptCheck --no-daemon
+# 애플리케이션 빌드 (ktlint 스킵, 테스트 실행)
+RUN gradle build -x ktlintTestSourceSetCheck -x ktlintMainSourceSetCheck -x ktlintKotlinScriptCheck --no-daemon
 
 # 두 번째 스테이지: 실행 스테이지
 FROM container-registry.oracle.com/graalvm/jdk:21
