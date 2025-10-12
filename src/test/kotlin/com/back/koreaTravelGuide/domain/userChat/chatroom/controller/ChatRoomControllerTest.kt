@@ -26,8 +26,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.transaction.annotation.Transactional
-import java.time.ZoneId
-import java.time.ZonedDateTime
 
 @ActiveProfiles("test")
 @SpringBootTest
@@ -95,7 +93,7 @@ class ChatRoomControllerTest {
     @Test
     @DisplayName("listRooms returns paginated rooms with cursor")
     fun listRoomsReturnsPaginatedRooms() {
-        val baseTime = ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
+        val baseTime = existingRoom.updatedAt
         val extraRooms =
             (1..6).map { idx ->
                 val extraGuide =
