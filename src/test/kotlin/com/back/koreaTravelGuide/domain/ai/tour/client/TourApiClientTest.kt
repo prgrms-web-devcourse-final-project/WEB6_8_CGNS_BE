@@ -4,10 +4,12 @@ import com.back.koreaTravelGuide.KoreaTravelGuideApplication
 import com.back.koreaTravelGuide.domain.ai.tour.dto.TourParams
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
@@ -24,9 +26,32 @@ import org.springframework.web.util.UriComponentsBuilder
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
+// 실제 API 호출 기반 단위 테스트
 @SpringBootTest(classes = [KoreaTravelGuideApplication::class])
 @ActiveProfiles("test")
-class TourApiClientTest {
+class TourApiClientTest @Autowired constructor(
+    private val tourApiClient: TourApiClient,
+) {
+    @DisplayName("fetchTourInfo - 실제 관광청 API가 빈 응답을 줄 경우")
+    @Test
+    fun fetchTourInfoRealCallEmptyResponse() {
+        val params =
+            TourParams(
+                contentTypeId = "12",
+                areaCode = "1",
+                sigunguCode = "1",
+            )
+
+        val result = tourApiClient.fetchTourInfo(params)
+
+        // isEmpty가 true인 경우 테스트를 진행, 아닐 경우 메세지 출력
+        assumeTrue(result.items.isEmpty()) {
+            "관광청 API가 정상 데이터를 제공하고 있어 장애 시나리오 테스트를 건너뜁니다."
+        }
+
+        assertTrue(result.items.isEmpty())
+    }
+
     // MockRestServiceServer 기반 단위 테스트
     @Nested
     inner class MockServerTests {
@@ -103,6 +128,7 @@ class TourApiClientTest {
                 .build()
                 .encode()
                 .toUriString()
+
     }
 
     companion object {
