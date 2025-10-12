@@ -6,15 +6,16 @@ import com.back.koreaTravelGuide.domain.user.enums.UserRole
 import com.back.koreaTravelGuide.domain.user.repository.UserRepository
 import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.servlet.http.Cookie
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
+import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Import
 import org.springframework.data.redis.core.RedisTemplate
+import org.springframework.data.redis.core.ValueOperations
 import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
@@ -47,6 +48,8 @@ class AuthControllerTest {
     @Autowired
     private lateinit var objectMapper: ObjectMapper
 
+    private lateinit var valueOperations: ValueOperations<String, String>
+
     private lateinit var pendingUser: User
     private lateinit var generalUser: User
 
@@ -73,6 +76,8 @@ class AuthControllerTest {
                     oauthId = "test5678",
                 ),
             )
+
+        valueOperations = redisTemplate.opsForValue()
     }
 
     @Test
@@ -100,6 +105,7 @@ class AuthControllerTest {
     fun t2() {
         // given
         val accessToken = jwtTokenProvider.createAccessToken(generalUser.id!!, generalUser.role)
+        val remainingTime = jwtTokenProvider.getRemainingTime(accessToken)
 
         // when & then
         mockMvc.perform(
@@ -111,8 +117,9 @@ class AuthControllerTest {
             .andExpect(jsonPath("$.msg").value("로그아웃 되었습니다."))
 
         // verify
-        val isBlacklisted = redisTemplate.opsForValue().get(accessToken) != null
-        assertTrue(isBlacklisted)
+        Mockito.verify(
+            valueOperations,
+        ).set(Mockito.eq(accessToken), Mockito.eq("logout"), Mockito.anyLong(), Mockito.eq(TimeUnit.MILLISECONDS))
     }
 
     @Test
@@ -121,7 +128,7 @@ class AuthControllerTest {
         // given
         val refreshToken = jwtTokenProvider.createRefreshToken(generalUser.id!!)
         val redisKey = "refreshToken:${generalUser.id}"
-        redisTemplate.opsForValue().set(redisKey, refreshToken, 7, TimeUnit.DAYS)
+        Mockito.`when`(valueOperations.get(redisKey)).thenReturn(refreshToken)
 
         // when & then
         mockMvc.perform(
