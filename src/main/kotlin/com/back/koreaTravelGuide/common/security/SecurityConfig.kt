@@ -77,7 +77,6 @@ class SecurityConfig(
                     authorize(anyRequest, authenticated)
                 }
             }
-
             if (!isDev) {
                 addFilterBefore<UsernamePasswordAuthenticationFilter>(jwtAuthenticationFilter)
             }
