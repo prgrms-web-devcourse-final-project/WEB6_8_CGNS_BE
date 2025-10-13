@@ -1,6 +1,7 @@
 package com.back.koreaTravelGuide.domain.ai.tour.service.core
 
 import com.back.koreaTravelGuide.domain.ai.tour.client.TourApiClient
+import com.back.koreaTravelGuide.domain.ai.tour.client.TourLanguage
 import com.back.koreaTravelGuide.domain.ai.tour.dto.TourDetailItem
 import com.back.koreaTravelGuide.domain.ai.tour.dto.TourDetailParams
 import com.back.koreaTravelGuide.domain.ai.tour.dto.TourDetailResponse
@@ -12,13 +13,20 @@ import org.springframework.stereotype.Service
 class TourDetailServiceCore(
     private val tourApiClient: TourApiClient,
 ) : TourDetailUseCase {
-    @Cacheable("tourDetail", key = "#detailParams.contentId", unless = "#result == null")
-    override fun fetchTourDetail(detailParams: TourDetailParams): TourDetailResponse {
+    @Cacheable(
+        "tourDetail",
+        key = "#detailParams.contentId + '_' + #language.serviceSegment",
+        unless = "#result == null",
+    )
+    override fun fetchTourDetail(
+        detailParams: TourDetailParams,
+        language: TourLanguage,
+    ): TourDetailResponse {
         if (detailParams.contentId == "127974") {
             return PRESET_DETAIL_RESPONSE
         }
 
-        return tourApiClient.fetchTourDetail(detailParams)
+        return tourApiClient.fetchTourDetail(detailParams, language)
     }
 
     private companion object {
