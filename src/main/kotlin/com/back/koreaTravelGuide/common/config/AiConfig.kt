@@ -1,5 +1,6 @@
 package com.back.koreaTravelGuide.common.config
 
+import com.back.koreaTravelGuide.domain.ai.aiChat.tool.GuideFinderTool
 import com.back.koreaTravelGuide.domain.ai.aiChat.tool.TourTool
 import com.back.koreaTravelGuide.domain.ai.aiChat.tool.WeatherTool
 import org.springframework.ai.chat.client.ChatClient
@@ -38,10 +39,11 @@ class AiConfig {
         chatMemory: ChatMemory,
         weatherTool: WeatherTool,
         tourTool: TourTool,
+        guideFinderTool: GuideFinderTool,
     ): ChatClient {
         return ChatClient.builder(chatModel)
             .defaultAdvisors(MessageChatMemoryAdvisor.builder(chatMemory).build())
-            .defaultTools(weatherTool, tourTool)
+            .defaultTools(weatherTool, tourTool, guideFinderTool)
             .build()
     }
 
