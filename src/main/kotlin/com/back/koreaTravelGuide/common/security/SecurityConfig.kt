@@ -69,7 +69,6 @@ class SecurityConfig(
                 authorize("/webjars/swagger-ui/**", permitAll)
                 authorize("/api/auth/**", permitAll)
                 authorize("/actuator/health", permitAll)
-                authorize("/weather/test1", permitAll)
                 authorize("/favicon.ico", permitAll)
                 if (isDev) {
                     authorize(anyRequest, permitAll)
