@@ -1,11 +1,9 @@
-package com.back.koreaTravelGuide.common.config
+package com.back.koreaTravelGuide.common.security
 
-import com.back.koreaTravelGuide.common.security.CustomOAuth2LoginSuccessHandler
-import com.back.koreaTravelGuide.common.security.CustomOAuth2UserService
-import com.back.koreaTravelGuide.common.security.JwtAuthenticationFilter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.env.Environment
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.invoke
 import org.springframework.security.config.http.SessionCreationPolicy
@@ -16,6 +14,7 @@ import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 
 @Configuration
+@EnableMethodSecurity
 class SecurityConfig(
     private val customOAuth2UserService: CustomOAuth2UserService,
     private val customOAuth2LoginSuccessHandler: CustomOAuth2LoginSuccessHandler,
@@ -24,9 +23,9 @@ class SecurityConfig(
 ) {
     @Bean
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
-        val isDev =
-            environment.getProperty("spring.profiles.active")?.contains("dev") == true ||
-                environment.activeProfiles.contains("dev")
+        val activeProfiles = environment.activeProfiles
+        val defaultProfiles = environment.defaultProfiles
+        val isDev = activeProfiles.contains("dev") || (activeProfiles.isEmpty() && defaultProfiles.contains("dev"))
 
         http {
             csrf { disable() }
@@ -69,6 +68,7 @@ class SecurityConfig(
                 authorize("/webjars/swagger-ui/**", permitAll)
                 authorize("/api/auth/**", permitAll)
                 authorize("/actuator/health", permitAll)
+                authorize("/weather/test1", permitAll)
                 authorize("/favicon.ico", permitAll)
                 if (isDev) {
                     authorize(anyRequest, permitAll)
@@ -95,7 +95,7 @@ class SecurityConfig(
                         listOf(
                             "http://localhost:3000",
                             "http://localhost:63342",
-                            // 배포주소
+                            "http://www.team11.giwon11292.com",
                         )
                     allowedMethods = listOf("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
                     allowedHeaders = listOf("*")
