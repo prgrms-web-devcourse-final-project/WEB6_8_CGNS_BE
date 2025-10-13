@@ -1,5 +1,6 @@
 package com.back.koreaTravelGuide.common.security
 
+import com.back.koreaTravelGuide.common.config.AppConfig
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.env.Environment
@@ -20,6 +21,7 @@ class SecurityConfig(
     private val customOAuth2LoginSuccessHandler: CustomOAuth2LoginSuccessHandler,
     private val jwtAuthenticationFilter: JwtAuthenticationFilter,
     private val environment: Environment,
+    private val appConfig: AppConfig,
 ) {
     @Bean
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
@@ -35,11 +37,7 @@ class SecurityConfig(
             logout { disable() }
 
             headers {
-                if (isDev) {
-                    frameOptions { disable() }
-                } else {
-                    frameOptions { sameOrigin }
-                }
+                frameOptions { disable() }
             }
 
             sessionManagement {
@@ -95,7 +93,7 @@ class SecurityConfig(
                         listOf(
                             "http://localhost:3000",
                             "http://localhost:63342",
-                            "http://www.team11.giwon11292.com",
+                            AppConfig.siteFrontUrl,
                         )
                     allowedMethods = listOf("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
                     allowedHeaders = listOf("*")
