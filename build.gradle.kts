@@ -34,6 +34,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
 
     // jwt
@@ -140,6 +141,17 @@ buildConfig {
                 "${parts[0].trim()}: ${parts[1].trim().replace("\"", "")}"
             }
 
+    val languageCodesDescription =
+        file("src/main/resources/language.yml")
+            .readText()
+            .substringAfter("codes:")
+            .lines()
+            .filter { it.contains(":") }
+            .joinToString(", ") { line ->
+                val parts = line.split(":")
+                "${parts[0].trim()}: ${parts[1].trim().replace("\"", "")}"
+            }
+
     val regionCodes =
         file("src/main/resources/region-codes.yml")
             .readText()
@@ -165,6 +177,7 @@ buildConfig {
 
     buildConfigField("String", "AREA_CODES_DESCRIPTION", "\"\"\"$areaCodes\"\"\"")
     buildConfigField("String", "CONTENT_TYPE_CODES_DESCRIPTION", "\"\"\"$contentTypeCodes\"\"\"")
+    buildConfigField("String", "LANGUAGE_CODES_DESCRIPTION", "\"\"\"$languageCodesDescription\"\"\"")
     buildConfigField("String", "REGION_CODES_DESCRIPTION", "\"\"\"$regionCodes\"\"\"")
     buildConfigField("String", "KOREA_TRAVEL_GUIDE_SYSTEM", "\"\"\"$systemPrompt\"\"\"")
     buildConfigField("String", "AI_ERROR_FALLBACK", "\"\"\"$errorPrompt\"\"\"")

@@ -1,7 +1,6 @@
 package com.back.koreaTravelGuide.domain.ai.tour.service.core
 
 import com.back.koreaTravelGuide.domain.ai.tour.client.TourApiClient
-import com.back.koreaTravelGuide.domain.ai.tour.client.TourLanguage
 import com.back.koreaTravelGuide.domain.ai.tour.dto.TourDetailItem
 import com.back.koreaTravelGuide.domain.ai.tour.dto.TourDetailParams
 import com.back.koreaTravelGuide.domain.ai.tour.dto.TourDetailResponse
@@ -15,18 +14,18 @@ class TourDetailServiceCore(
 ) : TourDetailUseCase {
     @Cacheable(
         "tourDetail",
-        key = "#detailParams.contentId + '_' + #language.serviceSegment",
+        key = "#detailParams.contentId + '_' + #serviceSegment",
         unless = "#result == null",
     )
     override fun fetchTourDetail(
         detailParams: TourDetailParams,
-        language: TourLanguage,
+        serviceSegment: String,
     ): TourDetailResponse {
         if (detailParams.contentId == "127974") {
             return PRESET_DETAIL_RESPONSE
         }
 
-        return tourApiClient.fetchTourDetail(detailParams, language)
+        return tourApiClient.fetchTourDetail(detailParams, serviceSegment)
     }
 
     private companion object {

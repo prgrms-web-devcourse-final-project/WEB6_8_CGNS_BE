@@ -1,7 +1,6 @@
 package com.back.koreaTravelGuide.domain.ai.tour.service.core
 
 import com.back.koreaTravelGuide.domain.ai.tour.client.TourApiClient
-import com.back.koreaTravelGuide.domain.ai.tour.client.TourLanguage
 import com.back.koreaTravelGuide.domain.ai.tour.dto.TourItem
 import com.back.koreaTravelGuide.domain.ai.tour.dto.TourParams
 import com.back.koreaTravelGuide.domain.ai.tour.dto.TourResponse
@@ -16,12 +15,12 @@ class TourAreaBasedServiceCore(
     @Cacheable(
         "tourAreaBased",
         key =
-            "#tourParams.contentTypeId + '_' + #tourParams.areaCode + '_' + #tourParams.sigunguCode + '_' + #language.serviceSegment",
+            "#tourParams.contentTypeId + '_' + #tourParams.areaCode + '_' + #tourParams.sigunguCode + '_' + #serviceSegment",
         unless = "#result == null",
     )
     override fun fetchAreaBasedTours(
         tourParams: TourParams,
-        language: TourLanguage,
+        serviceSegment: String,
     ): TourResponse {
         if (
             tourParams.contentTypeId == "12" &&
@@ -31,7 +30,7 @@ class TourAreaBasedServiceCore(
             return PRESET_AREA_TOUR_RESPONSE
         }
 
-        return tourApiClient.fetchTourInfo(tourParams, language)
+        return tourApiClient.fetchTourInfo(tourParams, serviceSegment)
     }
 
     private companion object {

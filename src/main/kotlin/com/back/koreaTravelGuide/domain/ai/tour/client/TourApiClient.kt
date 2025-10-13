@@ -27,10 +27,10 @@ class TourApiClient(
     // 지역 기반 관광 정보 조회 (areaBasedList2)
     fun fetchTourInfo(
         params: TourParams,
-        language: TourLanguage = TourLanguage.KOREAN,
+        serviceSegment: String,
     ): TourResponse {
         val url =
-            buildTourUri(language, "areaBasedList2") {
+            buildTourUri(serviceSegment, "areaBasedList2") {
                 queryParam("contentTypeId", params.contentTypeId)
                 queryParam("areaCode", params.areaCode)
                 queryParam("sigunguCode", params.sigunguCode)
@@ -38,7 +38,7 @@ class TourApiClient(
 
         val body =
             runCatching { restTemplate.getForObject(url, String::class.java) }
-                .onFailure { log.error("관광 정보 조회 실패", it) }
+                .onFailure { log.error("관광 정보 조회 실패 - serviceSegment={}", serviceSegment, it) }
                 .getOrNull()
 
         return body
@@ -51,10 +51,10 @@ class TourApiClient(
     fun fetchLocationBasedTours(
         tourParams: TourParams,
         locationParams: TourLocationBasedParams,
-        language: TourLanguage = TourLanguage.KOREAN,
+        serviceSegment: String,
     ): TourResponse {
         val url =
-            buildTourUri(language, "locationBasedList2") {
+            buildTourUri(serviceSegment, "locationBasedList2") {
                 queryParam("mapX", locationParams.mapX)
                 queryParam("mapY", locationParams.mapY)
                 queryParam("radius", locationParams.radius)
@@ -65,7 +65,7 @@ class TourApiClient(
 
         val body =
             runCatching { restTemplate.getForObject(url, String::class.java) }
-                .onFailure { log.error("위치기반 관광 정보 조회 실패", it) }
+                .onFailure { log.error("위치기반 관광 정보 조회 실패 - serviceSegment={}", serviceSegment, it) }
                 .getOrNull()
 
         return body
@@ -77,16 +77,16 @@ class TourApiClient(
     // 공통정보 조회 (detailCommon2)
     fun fetchTourDetail(
         params: TourDetailParams,
-        language: TourLanguage = TourLanguage.KOREAN,
+        serviceSegment: String,
     ): TourDetailResponse {
         val url =
-            buildTourUri(language, "detailCommon2") {
+            buildTourUri(serviceSegment, "detailCommon2") {
                 queryParam("contentId", params.contentId)
             }
 
         val body =
             runCatching { restTemplate.getForObject(url, String::class.java) }
-                .onFailure { log.error("공통정보 조회 실패", it) }
+                .onFailure { log.error("공통정보 조회 실패 - serviceSegment={}", serviceSegment, it) }
                 .getOrNull()
 
         return body
@@ -95,10 +95,6 @@ class TourApiClient(
             ?: TourDetailResponse(items = emptyList())
     }
 
-    /*
-     * areaBasedList2/locationBasedList2 JSON 응답에서 `response.body.items.item` 배열만 추출
-     * Kotlin 도메인 모델(TourItem) 목록으로 변환한다. item 노드가 비어 있으면 빈 목록을 반환한다.
-     */
     private fun parseItems(json: String): TourResponse {
         val itemNodes = extractItemNodes(json, "관광 정보")
         if (itemNodes.isEmpty()) return TourResponse(items = emptyList())
@@ -128,10 +124,6 @@ class TourApiClient(
         return TourResponse(items = items)
     }
 
-    /*
-     * detailCommon2 JSON 응답을 파싱해 `TourDetailItem` 목록으로 변환한다.
-     * 항목이 없으면 빈 응답을 돌려준다. 필드 구성이 다르기 때문에 detailCommon2 은 별도 파서로 분리한다.
-     */
     private fun parseDetailItems(json: String): TourDetailResponse {
         val itemNodes = extractItemNodes(json, "공통정보")
         if (itemNodes.isEmpty()) return TourDetailResponse(items = emptyList())
@@ -154,10 +146,6 @@ class TourApiClient(
         return TourDetailResponse(items = items)
     }
 
-    /*
-     * 공통 응답 구조에서 resultCode가 성공(0000)인지 검사한 뒤 `item` 배열 노드를 리스트로 반환한다.
-     * 실패 코드거나 배열이 비어 있으면 빈 리스트를 돌려준다.
-     */
     private fun extractItemNodes(
         json: String,
         apiName: String,
@@ -187,18 +175,13 @@ class TourApiClient(
         return itemsNode.map { it }
     }
 
-    /**
-     * 공통 URL 빌더
-     * - 설정된 기본 URL을 바탕으로 언어 세그먼트(e.g. KorService2, EngService2)와 공통 쿼리 파라미터
-     * - (`serviceKey`, `MobileOS`, `MobileApp`, `_type`)를 자동으로 붙여 관광 API 호출용 URI를 만든다.
-     */
     private fun buildTourUri(
-        language: TourLanguage,
+        serviceSegment: String,
         vararg pathSegments: String,
         customize: UriComponentsBuilder.() -> Unit = {},
     ): URI =
         UriComponentsBuilder.fromUri(URI.create(apiUrl))
-            .pathSegment(language.serviceSegment, *pathSegments)
+            .pathSegment(serviceSegment, *pathSegments)
             .apply {
                 queryParam("serviceKey", serviceKey)
                 queryParam("MobileOS", "WEB")
