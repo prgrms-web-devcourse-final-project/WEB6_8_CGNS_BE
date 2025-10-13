@@ -1,4 +1,4 @@
-package com.back.koreaTravelGuide.domain.userChat.config
+package com.back.koreaTravelGuide.domain.userChat.stomp
 
 import com.back.koreaTravelGuide.common.security.JwtTokenProvider
 import org.springframework.messaging.Message
