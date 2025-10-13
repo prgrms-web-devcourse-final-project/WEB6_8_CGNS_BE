@@ -1,0 +1,11 @@
+services:
+  rabbit:
+    image: rabbitmq:3-management
+    container_name: rabbit
+    ports:
+      - "5672:5672"    # AMQP (Spring ↔ RabbitMQ)
+      - "61613:61613"  # STOMP (Relay가 붙음)
+      - "15672:15672"  # 관리 콘솔(옵션, 로컬에서만)
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
