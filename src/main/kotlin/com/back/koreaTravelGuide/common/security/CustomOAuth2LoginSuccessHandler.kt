@@ -1,5 +1,6 @@
 package com.back.koreaTravelGuide.common.security
 
+import com.back.koreaTravelGuide.common.config.AppConfig
 import com.back.koreaTravelGuide.domain.user.enums.UserRole
 import com.back.koreaTravelGuide.domain.user.repository.UserRepository
 import jakarta.servlet.http.Cookie
@@ -19,6 +20,7 @@ class CustomOAuth2LoginSuccessHandler(
     private val userRepository: UserRepository,
     private val redisTemplate: RedisTemplate<String, String>,
     @Value("\${jwt.refresh-token-expiration-days}") private val refreshTokenExpirationDays: Long,
+    private val appConfig: AppConfig,
 ) : SimpleUrlAuthenticationSuccessHandler() {
     @Transactional
     override fun onAuthenticationSuccess(
@@ -35,7 +37,7 @@ class CustomOAuth2LoginSuccessHandler(
         if (user.role == UserRole.PENDING) {
             val registerToken = jwtTokenProvider.createRegisterToken(user.id!!)
 
-            val targetUrl = "http://localhost:3000/signup/role?token=$registerToken"
+            val targetUrl = "${AppConfig.siteFrontUrl}/signup/role?token=$registerToken"
 
             redirectStrategy.sendRedirect(request, response, targetUrl)
         } else {
@@ -58,7 +60,7 @@ class CustomOAuth2LoginSuccessHandler(
 
             response.addCookie(cookie)
 
-            val targetUrl = "http://localhost:3000/oauth/callback"
+            val targetUrl = "${AppConfig.siteFrontUrl}/oauth/callback"
 
             redirectStrategy.sendRedirect(request, response, targetUrl)
         }

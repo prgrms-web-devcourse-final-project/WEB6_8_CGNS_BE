@@ -53,13 +53,11 @@ class SecurityConfig(
                     }
             }
 
-            if (!isDev) {
-                oauth2Login {
-                    userInfoEndpoint {
-                        userService = customOAuth2UserService
-                    }
-                    authenticationSuccessHandler = customOAuth2LoginSuccessHandler
+            oauth2Login {
+                userInfoEndpoint {
+                    userService = customOAuth2UserService
                 }
+                authenticationSuccessHandler = customOAuth2LoginSuccessHandler
             }
 
             authorizeHttpRequests {
@@ -77,9 +75,7 @@ class SecurityConfig(
                     authorize(anyRequest, authenticated)
                 }
             }
-            if (!isDev) {
-                addFilterBefore<UsernamePasswordAuthenticationFilter>(jwtAuthenticationFilter)
-            }
+            addFilterBefore<UsernamePasswordAuthenticationFilter>(jwtAuthenticationFilter)
         }
 
         return http.build()
