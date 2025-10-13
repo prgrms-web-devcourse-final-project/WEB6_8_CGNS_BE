@@ -59,7 +59,7 @@ class TourApiClientTest {
                     sigunguCode = "1",
                 )
 
-            mockServer.expect(ExpectedCount.once(), requestTo(expectedAreaBasedListUrl(params)))
+            mockServer.expect(ExpectedCount.once(), requestTo(expectedAreaBasedListUrl(params, TourLanguage.KOREAN)))
                 .andExpect(method(HttpMethod.GET))
                 .andRespond(withSuccess(SUCCESS_RESPONSE, MediaType.APPLICATION_JSON))
 
@@ -81,7 +81,7 @@ class TourApiClientTest {
                     sigunguCode = "1",
                 )
 
-            mockServer.expect(ExpectedCount.once(), requestTo(expectedAreaBasedListUrl(params)))
+            mockServer.expect(ExpectedCount.once(), requestTo(expectedAreaBasedListUrl(params, TourLanguage.KOREAN)))
                 .andExpect(method(HttpMethod.GET))
                 .andRespond(withStatus(HttpStatus.NOT_FOUND))
 
@@ -90,9 +90,29 @@ class TourApiClientTest {
             assertTrue(result.items.isEmpty())
         }
 
-        private fun expectedAreaBasedListUrl(params: TourParams): String =
+        @DisplayName("fetchTourInfo - 언어별 서비스 세그먼트를 선택해 요청한다")
+        @Test
+        fun fetchTourInfoRespectsLanguageSegment() {
+            val params =
+                TourParams(
+                    contentTypeId = "12",
+                    areaCode = "1",
+                    sigunguCode = "1",
+                )
+
+            mockServer.expect(ExpectedCount.once(), requestTo(expectedAreaBasedListUrl(params, TourLanguage.ENGLISH)))
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withStatus(HttpStatus.NOT_FOUND))
+
+            mockClient.fetchTourInfo(params, TourLanguage.ENGLISH)
+        }
+
+        private fun expectedAreaBasedListUrl(
+            params: TourParams,
+            language: TourLanguage,
+        ): String =
             UriComponentsBuilder.fromUriString(baseUrl)
-                .path("/areaBasedList2")
+                .pathSegment(language.serviceSegment, "areaBasedList2")
                 .queryParam("serviceKey", serviceKey)
                 .queryParam("MobileOS", "WEB")
                 .queryParam("MobileApp", "KoreaTravelGuide")
