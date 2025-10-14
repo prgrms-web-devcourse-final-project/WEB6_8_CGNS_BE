@@ -70,4 +70,4 @@ setup-git-hooks.bat     # Windows
 
 ---
 
-**마지막 업데이트** | 2025-09-24 | v1.0 (DDD 아키텍처 + Spring AI)
+**마지막 업데이트** | 2025-09-24 | v1.0 (DDD 아키텍처 + Spring AI)# Updated: 2025년 10월 14일 화요일 22시 38분 29초 KST
