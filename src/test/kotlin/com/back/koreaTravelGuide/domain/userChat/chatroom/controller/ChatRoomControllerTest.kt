@@ -125,6 +125,7 @@ class ChatRoomControllerTest {
                 .andExpect(status().isOk)
                 .andExpect(jsonPath("$.data.rooms.length()").value(3))
                 .andExpect(jsonPath("$.data.rooms[0].id").value(existingRoom.id!!.toInt()))
+                .andExpect(jsonPath("$.data.rooms[0].displayTitle").value("${guide.nickname}님과의 채팅"))
                 .andReturn()
 
         val firstCursorNode = objectMapper.readTree(firstPage.response.contentAsString)["data"]["nextCursor"]
@@ -139,7 +140,8 @@ class ChatRoomControllerTest {
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.data.rooms.length()").value(3))
-            .andExpect(jsonPath("$.data.rooms[0].id").exists()) // 도커 환경에서 정렬 순서가 다를 수 있어 ID 존재만 확인
+            .andExpect(jsonPath("$.data.rooms[0].id").value(extraRooms[2].id!!.toInt()))
+            .andExpect(jsonPath("$.data.rooms[0].displayTitle").value("guide3님과의 채팅"))
     }
 
     @Test
@@ -156,6 +158,7 @@ class ChatRoomControllerTest {
             .andExpect(jsonPath("$.data.id").value(existingRoom.id!!.toInt()))
             .andExpect(jsonPath("$.data.guideId").value(guide.id!!.toInt()))
             .andExpect(jsonPath("$.data.userId").value(guest.id!!.toInt()))
+            .andExpect(jsonPath("$.data.displayTitle").value("${guide.nickname}님과의 채팅"))
     }
 
     @Test
@@ -168,6 +171,7 @@ class ChatRoomControllerTest {
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.data.id").value(existingRoom.id!!.toInt()))
             .andExpect(jsonPath("$.data.title").value(existingRoom.title))
+            .andExpect(jsonPath("$.data.displayTitle").value("${guest.nickname}님과의 채팅"))
     }
 
     @Test

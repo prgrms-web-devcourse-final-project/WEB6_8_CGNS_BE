@@ -182,7 +182,10 @@ components:
           description: 채팅방 고유 식별자
         title:
           type: string
-          description: 채팅방 제목(Guide-User 조합)
+          description: 채팅방 내부 식별용 기본 제목 (Guide-사용자 ID 조합)
+        displayTitle:
+          type: string
+          description: 요청자 기준 상대 닉네임을 포함한 표현용 제목 (예: "홍길동님과의 채팅")
         guideId:
           type: integer
           format: int64
