@@ -81,6 +81,14 @@ spring:
           max-idle: 8
           min-idle: 0
 
+  # RabbitMQ 설정 (WebSocket STOMP Relay용)
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:admin}
+    password: ${RABBITMQ_PASSWORD:admin}
+    stomp-port: ${RABBITMQ_STOMP_PORT:61613}
+
   # 세션 관리 (개발용: none, 운영용: redis)
   session:
     store-type: none  # Redis 없어도 실행 가능하도록 변경

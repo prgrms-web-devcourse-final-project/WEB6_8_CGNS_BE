@@ -263,6 +263,34 @@ CREATE DATABASE \"${var.app_1_db_name}\" OWNER team11;
 GRANT ALL PRIVILEGES ON DATABASE \"${var.app_1_db_name}\" TO team11;
 "
 
+# rabbitmq 설치
+docker run -d \
+  --name rabbitmq_1 \
+  --restart unless-stopped \
+  --network common \
+  -p 5672:5672 \
+  -p 61613:61613 \
+  -p 15672:15672 \
+  -e RABBITMQ_DEFAULT_USER=admin \
+  -e RABBITMQ_DEFAULT_PASS=${var.password_1} \
+  -e TZ=Asia/Seoul \
+  -v /dockerProjects/rabbitmq_1/volumes/data:/var/lib/rabbitmq \
+  rabbitmq:3-management
+
+# RabbitMQ가 준비될 때까지 대기
+echo "RabbitMQ가 기동될 때까지 대기 중..."
+until docker exec rabbitmq_1 rabbitmqctl status &> /dev/null; do
+  echo "RabbitMQ가 아직 준비되지 않음. 5초 후 재시도..."
+  sleep 5
+done
+echo "RabbitMQ가 준비됨. STOMP 플러그인 활성화 중..."
+
+# RabbitMQ STOMP 플러그인 활성화
+docker exec rabbitmq_1 rabbitmq-plugins enable rabbitmq_stomp
+docker exec rabbitmq_1 rabbitmq-plugins enable rabbitmq_management
+
+echo "RabbitMQ 설치 및 설정 완료!"
+
 echo "${var.github_access_token_1}" | docker login ghcr.io -u ${var.github_access_token_1_owner} --password-stdin
 
 END_OF_FILE

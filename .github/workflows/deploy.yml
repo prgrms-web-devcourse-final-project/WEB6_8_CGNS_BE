@@ -234,6 +234,11 @@ jobs:
                 -e REDIS_HOST=redis_1 \
                 -e REDIS_PORT=6379 \
                 -e REDIS_PASSWORD="${PASSWORD_1}" \
+                -e RABBITMQ_HOST=rabbitmq_1 \
+                -e RABBITMQ_PORT=5672 \
+                -e RABBITMQ_USERNAME=admin \
+                -e RABBITMQ_PASSWORD="${PASSWORD_1}" \
+                -e RABBITMQ_STOMP_PORT=61613 \
                 "${IMAGE}"
 
               # ---------------------------------------------------------
