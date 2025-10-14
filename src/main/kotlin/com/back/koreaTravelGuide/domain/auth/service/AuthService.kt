@@ -1,7 +1,6 @@
 package com.back.koreaTravelGuide.domain.auth.service
 
 import com.back.koreaTravelGuide.common.security.JwtTokenProvider
-import com.back.koreaTravelGuide.domain.auth.dto.response.LoginResponse
 import com.back.koreaTravelGuide.domain.user.enums.UserRole
 import com.back.koreaTravelGuide.domain.user.repository.UserRepository
 import org.springframework.beans.factory.annotation.Value
@@ -22,7 +21,7 @@ class AuthService(
     fun updateRoleAndLogin(
         userId: Long,
         role: UserRole,
-    ): LoginResponse {
+    ): Pair<String, String> {
         if (role != UserRole.USER && role != UserRole.GUIDE) {
             throw IllegalArgumentException("선택할 수 없는 역할입니다.")
         }
@@ -39,8 +38,12 @@ class AuthService(
         userRepository.save(user)
 
         val accessToken = jwtTokenProvider.createAccessToken(user.id!!, user.role)
+        val refreshToken = jwtTokenProvider.createRefreshToken(user.id!!)
 
-        return LoginResponse(accessToken = accessToken)
+        val redisKey = "refreshToken:${user.id}"
+        redisTemplate.opsForValue().set(redisKey, refreshToken, refreshTokenExpirationDays, TimeUnit.DAYS)
+
+        return Pair(accessToken, refreshToken)
     }
 
     fun logout(accessToken: String) {

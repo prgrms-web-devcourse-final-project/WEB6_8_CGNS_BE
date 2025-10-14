@@ -4,9 +4,9 @@ import com.back.koreaTravelGuide.common.ApiResponse
 import com.back.koreaTravelGuide.common.security.getUserId
 import com.back.koreaTravelGuide.domain.auth.dto.request.UserRoleUpdateRequest
 import com.back.koreaTravelGuide.domain.auth.dto.response.AccessTokenResponse
-import com.back.koreaTravelGuide.domain.auth.dto.response.LoginResponse
 import com.back.koreaTravelGuide.domain.auth.service.AuthService
 import io.swagger.v3.oas.annotations.Operation
+import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.beans.factory.annotation.Value
@@ -48,10 +48,21 @@ class AuthController(
     fun updateUserRole(
         authentication: Authentication,
         @RequestBody request: UserRoleUpdateRequest,
-    ): ResponseEntity<ApiResponse<LoginResponse>> {
+        response: HttpServletResponse,
+    ): ResponseEntity<ApiResponse<AccessTokenResponse>> {
         val userId = authentication.getUserId()
-        val loginResponse = authService.updateRoleAndLogin(userId, request.role)
-        return ResponseEntity.ok(ApiResponse("역할이 선택되었으며 로그인에 성공했습니다.", loginResponse))
+        val (accessToken, refreshToken) = authService.updateRoleAndLogin(userId, request.role)
+
+        val cookie =
+            Cookie("refreshToken", refreshToken).apply {
+                isHttpOnly = true
+                secure = true
+                path = "/"
+                maxAge = (refreshTokenExpirationDays * 24 * 60 * 60).toInt()
+            }
+        response.addCookie(cookie)
+
+        return ResponseEntity.ok(ApiResponse("역할이 선택되었으며 로그인에 성공했습니다.", AccessTokenResponse(accessToken = accessToken)))
     }
 
     @Operation(summary = "로그아웃")
