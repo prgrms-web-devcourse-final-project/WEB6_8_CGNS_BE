@@ -21,7 +21,13 @@ class TourDetailServiceCore(
         detailParams: TourDetailParams,
         serviceSegment: String,
     ): TourDetailResponse {
-        if (detailParams.contentId == "127974") {
+        // 을숙도 철새공원 상세정보(EngService2, contentId 264247) 프리셋
+        if (serviceSegment == ENGLISH_SERVICE_SEGMENT && detailParams.contentId == "264247") {
+            return PRESET_DETAIL_RESPONSE_EN
+        }
+
+        // 동촌유원지 상세정보(KorService2, contentId 127974) 프리셋
+        if (serviceSegment == KOREAN_SERVICE_SEGMENT && detailParams.contentId == "127974") {
             return PRESET_DETAIL_RESPONSE
         }
 
@@ -29,6 +35,33 @@ class TourDetailServiceCore(
     }
 
     private companion object {
+        private const val ENGLISH_SERVICE_SEGMENT = "EngService2"
+        private const val KOREAN_SERVICE_SEGMENT = "KorService2"
+
+        // 을숙도 철새공원 상세정보 영어 프리셋
+        val PRESET_DETAIL_RESPONSE_EN =
+            TourDetailResponse(
+                items =
+                    listOf(
+                        TourDetailItem(
+                            contentId = "264247",
+                            title = "Eulsukdo Migratory Bird Park (을숙도 철새공원)",
+                            overview =
+                                "Eulsukdo Migratory Bird Park, designated as Natural Monument No. 179," +
+                                    "is located in the lower part of Elsukdo Island. " +
+                                    "Renovated in 2009, the park is the central area for migratory bird habitats and ecology tourism. " +
+                                    "In winter, migratory birds can be seen at the wetlands.",
+                            addr1 = "1240, Nakdongnam-ro, Saha-gu, Busan",
+                            mapX = "128.9353792487",
+                            mapY = "35.0937941809",
+                            firstImage = "http://tong.visitkorea.or.kr/cms/resource/66/2487966_image2_1.JPG",
+                            tel = "+82-51-209-2031",
+                            homepage = """<a href="http://www.busan.go.kr/wetland/index" target="_blank">www.busan.go.kr</a>""",
+                        ),
+                    ),
+            )
+
+        // 동촌유원지 상세정보 한국어 프리셋
         val PRESET_DETAIL_RESPONSE =
             TourDetailResponse(
                 items =

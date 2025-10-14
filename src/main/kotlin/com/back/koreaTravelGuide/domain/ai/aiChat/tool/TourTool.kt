@@ -146,4 +146,21 @@ class TourTool(
             "관광정보 상세조회를 가져올 수 없습니다."
         }
     }
+
+    /**
+     * 1
+     * fetchTours - 지역기반 관광정보 조회
+     * 케이스 : 부산광역시 사하구에 있는 관광지 조회
+     * "areacode": "6" 부산
+     * "sigungucode": "10" 사하구
+     * "contenttypeid": "76" 관광지 (해외)
+     *  "serviceSegment" : "EngService2" (영어)
+     *
+     *
+     *  2
+     * fetchTourDetail - 상세조회
+     * 케이스 : 콘텐츠ID가 "264247인 관광정보의 "상베 정보" 조회
+     * "contentid": "264247,
+     * "serviceSegment" : "EngService2" (영어)
+     */
 }
