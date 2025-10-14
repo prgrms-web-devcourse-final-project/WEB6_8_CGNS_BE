@@ -27,7 +27,6 @@ import kotlin.test.assertTrue
 @SpringBootTest(classes = [KoreaTravelGuideApplication::class])
 @ActiveProfiles("test")
 class TourApiClientTest {
-    // MockRestServiceServer 기반 단위 테스트
     @Nested
     inner class MockServerTests {
         private lateinit var restTemplate: RestTemplate
@@ -36,6 +35,9 @@ class TourApiClientTest {
 
         private val serviceKey = "test-service-key"
         private val baseUrl = "https://example.com"
+
+        private val koreanSegment = "KorService2"
+        private val englishSegment = "EngService2"
 
         @BeforeEach
         fun setUp() {
@@ -59,11 +61,11 @@ class TourApiClientTest {
                     sigunguCode = "1",
                 )
 
-            mockServer.expect(ExpectedCount.once(), requestTo(expectedAreaBasedListUrl(params, TourLanguage.KOREAN)))
+            mockServer.expect(ExpectedCount.once(), requestTo(expectedAreaBasedListUrl(params, koreanSegment)))
                 .andExpect(method(HttpMethod.GET))
                 .andRespond(withSuccess(SUCCESS_RESPONSE, MediaType.APPLICATION_JSON))
 
-            val result = mockClient.fetchTourInfo(params)
+            val result = mockClient.fetchTourInfo(params, koreanSegment)
 
             assertEquals(1, result.items.size)
             val firstItem = result.items.first()
@@ -81,11 +83,11 @@ class TourApiClientTest {
                     sigunguCode = "1",
                 )
 
-            mockServer.expect(ExpectedCount.once(), requestTo(expectedAreaBasedListUrl(params, TourLanguage.KOREAN)))
+            mockServer.expect(ExpectedCount.once(), requestTo(expectedAreaBasedListUrl(params, koreanSegment)))
                 .andExpect(method(HttpMethod.GET))
                 .andRespond(withStatus(HttpStatus.NOT_FOUND))
 
-            val result = mockClient.fetchTourInfo(params)
+            val result = mockClient.fetchTourInfo(params, koreanSegment)
 
             assertTrue(result.items.isEmpty())
         }
@@ -100,19 +102,19 @@ class TourApiClientTest {
                     sigunguCode = "1",
                 )
 
-            mockServer.expect(ExpectedCount.once(), requestTo(expectedAreaBasedListUrl(params, TourLanguage.ENGLISH)))
+            mockServer.expect(ExpectedCount.once(), requestTo(expectedAreaBasedListUrl(params, englishSegment)))
                 .andExpect(method(HttpMethod.GET))
                 .andRespond(withStatus(HttpStatus.NOT_FOUND))
 
-            mockClient.fetchTourInfo(params, TourLanguage.ENGLISH)
+            mockClient.fetchTourInfo(params, englishSegment)
         }
 
         private fun expectedAreaBasedListUrl(
             params: TourParams,
-            language: TourLanguage,
+            serviceSegment: String,
         ): String =
             UriComponentsBuilder.fromUriString(baseUrl)
-                .pathSegment(language.serviceSegment, "areaBasedList2")
+                .pathSegment(serviceSegment, "areaBasedList2")
                 .queryParam("serviceKey", serviceKey)
                 .queryParam("MobileOS", "WEB")
                 .queryParam("MobileApp", "KoreaTravelGuide")

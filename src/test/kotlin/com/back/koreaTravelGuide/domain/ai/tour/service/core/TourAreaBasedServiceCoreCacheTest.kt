@@ -1,7 +1,6 @@
 package com.back.koreaTravelGuide.domain.ai.tour.service.core
 
 import com.back.koreaTravelGuide.domain.ai.tour.client.TourApiClient
-import com.back.koreaTravelGuide.domain.ai.tour.client.TourLanguage
 import com.back.koreaTravelGuide.domain.ai.tour.dto.TourItem
 import com.back.koreaTravelGuide.domain.ai.tour.dto.TourParams
 import com.back.koreaTravelGuide.domain.ai.tour.dto.TourResponse
@@ -32,6 +31,9 @@ class TourAreaBasedServiceCoreCacheTest {
 
     @Autowired
     private lateinit var cacheManager: CacheManager
+
+    private val koreanSegment = "KorService2"
+    private val englishSegment = "EngService2"
 
     @BeforeEach
     fun clearCaches() {
@@ -68,14 +70,14 @@ class TourAreaBasedServiceCoreCacheTest {
                     ),
             )
 
-        every { tourApiClient.fetchTourInfo(params, TourLanguage.KOREAN) } returns apiResponse
+        every { tourApiClient.fetchTourInfo(params, koreanSegment) } returns apiResponse
 
-        val firstCall = service.fetchAreaBasedTours(params, TourLanguage.KOREAN)
-        val secondCall = service.fetchAreaBasedTours(params, TourLanguage.KOREAN)
+        val firstCall = service.fetchAreaBasedTours(params, koreanSegment)
+        val secondCall = service.fetchAreaBasedTours(params, koreanSegment)
 
         assertEquals(apiResponse, firstCall)
         assertEquals(apiResponse, secondCall)
-        verify(exactly = 1) { tourApiClient.fetchTourInfo(params, TourLanguage.KOREAN) }
+        verify(exactly = 1) { tourApiClient.fetchTourInfo(params, koreanSegment) }
     }
 
     @DisplayName("fetchAreaBasedTours - 언어가 다르면 각각 캐시가 생성된다")
@@ -85,20 +87,20 @@ class TourAreaBasedServiceCoreCacheTest {
         val koreanResponse = simpleTourResponse(contentId = "ko", title = "국문")
         val englishResponse = simpleTourResponse(contentId = "en", title = "English")
 
-        every { tourApiClient.fetchTourInfo(params, TourLanguage.KOREAN) } returns koreanResponse
-        every { tourApiClient.fetchTourInfo(params, TourLanguage.ENGLISH) } returns englishResponse
+        every { tourApiClient.fetchTourInfo(params, koreanSegment) } returns koreanResponse
+        every { tourApiClient.fetchTourInfo(params, englishSegment) } returns englishResponse
 
-        val koreanFirst = service.fetchAreaBasedTours(params, TourLanguage.KOREAN)
-        val englishFirst = service.fetchAreaBasedTours(params, TourLanguage.ENGLISH)
-        val koreanSecond = service.fetchAreaBasedTours(params, TourLanguage.KOREAN)
-        val englishSecond = service.fetchAreaBasedTours(params, TourLanguage.ENGLISH)
+        val koreanFirst = service.fetchAreaBasedTours(params, koreanSegment)
+        val englishFirst = service.fetchAreaBasedTours(params, englishSegment)
+        val koreanSecond = service.fetchAreaBasedTours(params, koreanSegment)
+        val englishSecond = service.fetchAreaBasedTours(params, englishSegment)
 
         assertEquals(koreanResponse, koreanFirst)
         assertEquals(englishResponse, englishFirst)
         assertEquals(koreanResponse, koreanSecond)
         assertEquals(englishResponse, englishSecond)
-        verify(exactly = 1) { tourApiClient.fetchTourInfo(params, TourLanguage.KOREAN) }
-        verify(exactly = 1) { tourApiClient.fetchTourInfo(params, TourLanguage.ENGLISH) }
+        verify(exactly = 1) { tourApiClient.fetchTourInfo(params, koreanSegment) }
+        verify(exactly = 1) { tourApiClient.fetchTourInfo(params, englishSegment) }
     }
 
     private fun simpleTourResponse(
