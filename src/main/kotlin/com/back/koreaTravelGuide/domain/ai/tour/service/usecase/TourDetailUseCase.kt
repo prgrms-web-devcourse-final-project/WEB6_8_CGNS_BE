@@ -4,5 +4,8 @@ import com.back.koreaTravelGuide.domain.ai.tour.dto.TourDetailParams
 import com.back.koreaTravelGuide.domain.ai.tour.dto.TourDetailResponse
 
 interface TourDetailUseCase {
-    fun fetchTourDetail(detailParams: TourDetailParams): TourDetailResponse
+    fun fetchTourDetail(
+        detailParams: TourDetailParams,
+        serviceSegment: String,
+    ): TourDetailResponse
 }

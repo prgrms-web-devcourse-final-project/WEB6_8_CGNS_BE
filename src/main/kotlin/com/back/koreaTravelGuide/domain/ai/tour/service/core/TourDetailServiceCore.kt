@@ -12,13 +12,20 @@ import org.springframework.stereotype.Service
 class TourDetailServiceCore(
     private val tourApiClient: TourApiClient,
 ) : TourDetailUseCase {
-    @Cacheable("tourDetail", key = "#detailParams.contentId", unless = "#result == null")
-    override fun fetchTourDetail(detailParams: TourDetailParams): TourDetailResponse {
+    @Cacheable(
+        "tourDetail",
+        key = "#detailParams.contentId + '_' + #serviceSegment",
+        unless = "#result == null",
+    )
+    override fun fetchTourDetail(
+        detailParams: TourDetailParams,
+        serviceSegment: String,
+    ): TourDetailResponse {
         if (detailParams.contentId == "127974") {
             return PRESET_DETAIL_RESPONSE
         }
 
-        return tourApiClient.fetchTourDetail(detailParams)
+        return tourApiClient.fetchTourDetail(detailParams, serviceSegment)
     }
 
     private companion object {

@@ -4,5 +4,8 @@ import com.back.koreaTravelGuide.domain.ai.tour.dto.TourParams
 import com.back.koreaTravelGuide.domain.ai.tour.dto.TourResponse
 
 interface TourAreaBasedUseCase {
-    fun fetchAreaBasedTours(tourParams: TourParams): TourResponse
+    fun fetchAreaBasedTours(
+        tourParams: TourParams,
+        serviceSegment: String,
+    ): TourResponse
 }

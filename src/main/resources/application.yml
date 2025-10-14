@@ -150,7 +150,7 @@ weather:
 tour:
   api:
     key: ${TOUR_API_KEY:dev-tour-api-key-placeholder}
-    base-url: ${TOUR_API_BASE_URL:http://apis.data.go.kr/B551011/KorService1}
+    base-url: ${TOUR_API_BASE_URL:http://apis.data.go.kr/B551011}
 
 
 # 로깅 설정 (주니어 개발자 디버깅용)

@@ -1,0 +1,8 @@
+tour:
+  language:
+    codes:
+      한국어: "KorService2"
+      영어: "EngService2"
+      일본어: "JpnService2"
+      중국어 간체: "ChsService2"
+      중국어 번체: "ChtService2"

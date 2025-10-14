@@ -8,5 +8,6 @@ interface TourLocationBasedUseCase {
     fun fetchLocationBasedTours(
         tourParams: TourParams,
         locationParams: TourLocationBasedParams,
+        serviceSegment: String,
     ): TourResponse
 }

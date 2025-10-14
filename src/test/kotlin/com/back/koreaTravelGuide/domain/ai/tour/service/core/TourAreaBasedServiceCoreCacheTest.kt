@@ -5,9 +5,11 @@ import com.back.koreaTravelGuide.domain.ai.tour.dto.TourItem
 import com.back.koreaTravelGuide.domain.ai.tour.dto.TourParams
 import com.back.koreaTravelGuide.domain.ai.tour.dto.TourResponse
 import com.back.koreaTravelGuide.domain.ai.tour.service.usecase.TourAreaBasedUseCase
+import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -27,9 +29,21 @@ class TourAreaBasedServiceCoreCacheTest {
     @Autowired
     private lateinit var tourApiClient: TourApiClient
 
-    @DisplayName("fetchAreaBasedTours - 동일 파라미터 두 번 호출 시 API는 한 번만 호출된다")
+    @Autowired
+    private lateinit var cacheManager: CacheManager
+
+    private val koreanSegment = "KorService2"
+    private val englishSegment = "EngService2"
+
+    @BeforeEach
+    fun clearCaches() {
+        cacheManager.getCache("tourAreaBased")?.clear()
+        clearMocks(tourApiClient)
+    }
+
+    @DisplayName("fetchAreaBasedTours - 동일 파라미터·언어 조합은 한 번만 외부 API를 호출한다")
     @Test
-    fun cachesAreaBasedTours() {
+    fun cachesAreaBasedToursPerLanguage() {
         val params = TourParams(contentTypeId = "15", areaCode = "3", sigunguCode = "5")
         val apiResponse =
             TourResponse(
@@ -56,15 +70,66 @@ class TourAreaBasedServiceCoreCacheTest {
                     ),
             )
 
-        every { tourApiClient.fetchTourInfo(params) } returns apiResponse
+        every { tourApiClient.fetchTourInfo(params, koreanSegment) } returns apiResponse
 
-        val firstCall = service.fetchAreaBasedTours(params)
-        val secondCall = service.fetchAreaBasedTours(params)
+        val firstCall = service.fetchAreaBasedTours(params, koreanSegment)
+        val secondCall = service.fetchAreaBasedTours(params, koreanSegment)
 
         assertEquals(apiResponse, firstCall)
         assertEquals(apiResponse, secondCall)
-        verify(exactly = 1) { tourApiClient.fetchTourInfo(params) }
+        verify(exactly = 1) { tourApiClient.fetchTourInfo(params, koreanSegment) }
     }
+
+    @DisplayName("fetchAreaBasedTours - 언어가 다르면 각각 캐시가 생성된다")
+    @Test
+    fun cachesSeparatelyPerLanguage() {
+        val params = TourParams(contentTypeId = "15", areaCode = "3", sigunguCode = "5")
+        val koreanResponse = simpleTourResponse(contentId = "ko", title = "국문")
+        val englishResponse = simpleTourResponse(contentId = "en", title = "English")
+
+        every { tourApiClient.fetchTourInfo(params, koreanSegment) } returns koreanResponse
+        every { tourApiClient.fetchTourInfo(params, englishSegment) } returns englishResponse
+
+        val koreanFirst = service.fetchAreaBasedTours(params, koreanSegment)
+        val englishFirst = service.fetchAreaBasedTours(params, englishSegment)
+        val koreanSecond = service.fetchAreaBasedTours(params, koreanSegment)
+        val englishSecond = service.fetchAreaBasedTours(params, englishSegment)
+
+        assertEquals(koreanResponse, koreanFirst)
+        assertEquals(englishResponse, englishFirst)
+        assertEquals(koreanResponse, koreanSecond)
+        assertEquals(englishResponse, englishSecond)
+        verify(exactly = 1) { tourApiClient.fetchTourInfo(params, koreanSegment) }
+        verify(exactly = 1) { tourApiClient.fetchTourInfo(params, englishSegment) }
+    }
+
+    private fun simpleTourResponse(
+        contentId: String,
+        title: String,
+    ): TourResponse =
+        TourResponse(
+            items =
+                listOf(
+                    TourItem(
+                        contentId = contentId,
+                        contentTypeId = "15",
+                        createdTime = "202401010000",
+                        modifiedTime = "202401020000",
+                        title = title,
+                        addr1 = "대전",
+                        areaCode = "3",
+                        firstimage = null,
+                        firstimage2 = null,
+                        mapX = null,
+                        mapY = null,
+                        distance = null,
+                        mlevel = null,
+                        sigunguCode = "5",
+                        lDongRegnCd = null,
+                        lDongSignguCd = null,
+                    ),
+                ),
+        )
 
     @Configuration
     @EnableCaching

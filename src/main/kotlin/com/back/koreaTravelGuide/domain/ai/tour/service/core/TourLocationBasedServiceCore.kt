@@ -16,13 +16,15 @@ class TourLocationBasedServiceCore(
     @Cacheable(
         "tourLocationBased",
         key =
-            "#tourParams.contentTypeId + '_' + #tourParams.areaCode + '_' + #tourParams.sigunguCode + " +
-                "'_' + #locationParams.mapX + '_' + #locationParams.mapY + '_' + #locationParams.radius",
+            "#tourParams.contentTypeId + '_' + #tourParams.areaCode + '_' + #tourParams.sigunguCode + '_' + " +
+                "#locationParams.mapX + '_' + #locationParams.mapY + '_' + #locationParams.radius + '_' + " +
+                "#serviceSegment",
         unless = "#result == null",
     )
     override fun fetchLocationBasedTours(
         tourParams: TourParams,
         locationParams: TourLocationBasedParams,
+        serviceSegment: String,
     ): TourResponse {
         if (
             tourParams.contentTypeId == "39" &&
@@ -35,7 +37,7 @@ class TourLocationBasedServiceCore(
             return PRESET_LOCATION_BASED_RESPONSE
         }
 
-        return tourApiClient.fetchLocationBasedTours(tourParams, locationParams)
+        return tourApiClient.fetchLocationBasedTours(tourParams, locationParams, serviceSegment)
     }
 
     private companion object {

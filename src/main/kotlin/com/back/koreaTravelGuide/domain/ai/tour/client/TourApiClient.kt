@@ -13,11 +13,10 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
-import org.springframework.web.reactive.function.server.RequestPredicates.queryParam
 import org.springframework.web.util.UriComponentsBuilder
 import java.net.URI
 
-// 09.26 양현준
+// 10.12 양현준
 @Component
 class TourApiClient(
     private val restTemplate: RestTemplate,
@@ -25,28 +24,21 @@ class TourApiClient(
     @Value("\${tour.api.key}") private val serviceKey: String,
     @Value("\${tour.api.base-url}") private val apiUrl: String,
 ) {
-    // 요청 URL 구성
-    private fun buildUrl(params: TourParams): URI =
-        UriComponentsBuilder.fromUri(URI.create(apiUrl))
-            .path("/areaBasedList2")
-            .queryParam("serviceKey", serviceKey)
-            .queryParam("MobileOS", "WEB")
-            .queryParam("MobileApp", "KoreaTravelGuide")
-            .queryParam("_type", "json")
-            .queryParam("contentTypeId", params.contentTypeId)
-            .queryParam("areaCode", params.areaCode)
-            .queryParam("sigunguCode", params.sigunguCode)
-            .build()
-            .encode()
-            .toUri()
-
     // 지역 기반 관광 정보 조회 (areaBasedList2)
-    fun fetchTourInfo(params: TourParams): TourResponse {
-        val url = buildUrl(params)
+    fun fetchTourInfo(
+        params: TourParams,
+        serviceSegment: String,
+    ): TourResponse {
+        val url =
+            buildTourUri(serviceSegment, "areaBasedList2") {
+                queryParam("contentTypeId", params.contentTypeId)
+                queryParam("areaCode", params.areaCode)
+                queryParam("sigunguCode", params.sigunguCode)
+            }
 
         val body =
             runCatching { restTemplate.getForObject(url, String::class.java) }
-                .onFailure { log.error("관광 정보 조회 실패", it) }
+                .onFailure { log.error("관광 정보 조회 실패 - serviceSegment={}", serviceSegment, it) }
                 .getOrNull()
 
         return body
@@ -59,27 +51,21 @@ class TourApiClient(
     fun fetchLocationBasedTours(
         tourParams: TourParams,
         locationParams: TourLocationBasedParams,
+        serviceSegment: String,
     ): TourResponse {
         val url =
-            UriComponentsBuilder.fromUri(URI.create(apiUrl))
-                .path("/locationBasedList2")
-                .queryParam("serviceKey", serviceKey)
-                .queryParam("MobileOS", "WEB")
-                .queryParam("MobileApp", "KoreaTravelGuide")
-                .queryParam("_type", "json")
-                .queryParam("mapX", locationParams.mapX)
-                .queryParam("mapY", locationParams.mapY)
-                .queryParam("radius", locationParams.radius)
-                .queryParam("contentTypeId", tourParams.contentTypeId)
-                .queryParam("areaCode", tourParams.areaCode)
-                .queryParam("sigunguCode", tourParams.sigunguCode)
-                .build()
-                .encode()
-                .toUri()
+            buildTourUri(serviceSegment, "locationBasedList2") {
+                queryParam("mapX", locationParams.mapX)
+                queryParam("mapY", locationParams.mapY)
+                queryParam("radius", locationParams.radius)
+                queryParam("contentTypeId", tourParams.contentTypeId)
+                queryParam("areaCode", tourParams.areaCode)
+                queryParam("sigunguCode", tourParams.sigunguCode)
+            }
 
         val body =
             runCatching { restTemplate.getForObject(url, String::class.java) }
-                .onFailure { log.error("위치기반 관광 정보 조회 실패", it) }
+                .onFailure { log.error("위치기반 관광 정보 조회 실패 - serviceSegment={}", serviceSegment, it) }
                 .getOrNull()
 
         return body
@@ -89,22 +75,18 @@ class TourApiClient(
     }
 
     // 공통정보 조회 (detailCommon2)
-    fun fetchTourDetail(params: TourDetailParams): TourDetailResponse {
+    fun fetchTourDetail(
+        params: TourDetailParams,
+        serviceSegment: String,
+    ): TourDetailResponse {
         val url =
-            UriComponentsBuilder.fromUri(URI.create(apiUrl))
-                .path("/detailCommon2")
-                .queryParam("serviceKey", serviceKey)
-                .queryParam("MobileOS", "WEB")
-                .queryParam("MobileApp", "KoreaTravelGuide")
-                .queryParam("_type", "json")
-                .queryParam("contentId", params.contentId)
-                .build()
-                .encode()
-                .toUri()
+            buildTourUri(serviceSegment, "detailCommon2") {
+                queryParam("contentId", params.contentId)
+            }
 
         val body =
             runCatching { restTemplate.getForObject(url, String::class.java) }
-                .onFailure { log.error("공통정보 조회 실패", it) }
+                .onFailure { log.error("공통정보 조회 실패 - serviceSegment={}", serviceSegment, it) }
                 .getOrNull()
 
         return body
@@ -192,4 +174,22 @@ class TourApiClient(
 
         return itemsNode.map { it }
     }
+
+    private fun buildTourUri(
+        serviceSegment: String,
+        vararg pathSegments: String,
+        customize: UriComponentsBuilder.() -> Unit = {},
+    ): URI =
+        UriComponentsBuilder.fromUri(URI.create(apiUrl))
+            .pathSegment(serviceSegment, *pathSegments)
+            .apply {
+                queryParam("serviceKey", serviceKey)
+                queryParam("MobileOS", "WEB")
+                queryParam("MobileApp", "KoreaTravelGuide")
+                queryParam("_type", "json")
+                customize()
+            }
+            .build()
+            .encode()
+            .toUri()
 }
