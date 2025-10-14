@@ -15,12 +15,12 @@ class TourAreaBasedServiceCore(
     @Cacheable(
         "tourAreaBased",
         key =
-            "#tourParams.contentTypeId + '_' + #tourParams.areaCode + '_' + #tourParams.sigunguCode + '_' + #serviceSegment",
+            "#tourParams.contentTypeId + '_' + #tourParams.areaCode + '_' + #tourParams.sigunguCode + '_' + #languageCode",
         unless = "#result == null",
     )
     override fun fetchAreaBasedTours(
         tourParams: TourParams,
-        serviceSegment: String,
+        languageCode: String,
     ): TourResponse {
         if (
             tourParams.contentTypeId == "12" &&
@@ -30,7 +30,7 @@ class TourAreaBasedServiceCore(
             return PRESET_AREA_TOUR_RESPONSE
         }
 
-        return tourApiClient.fetchTourInfo(tourParams, serviceSegment)
+        return tourApiClient.fetchTourInfo(tourParams, languageCode)
     }
 
     private companion object {

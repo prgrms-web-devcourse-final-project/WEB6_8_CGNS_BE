@@ -14,18 +14,18 @@ class TourDetailServiceCore(
 ) : TourDetailUseCase {
     @Cacheable(
         "tourDetail",
-        key = "#detailParams.contentId + '_' + #serviceSegment",
+        key = "#detailParams.contentId + '_' + #languageCode",
         unless = "#result == null",
     )
     override fun fetchTourDetail(
         detailParams: TourDetailParams,
-        serviceSegment: String,
+        languageCode: String,
     ): TourDetailResponse {
         if (detailParams.contentId == "127974") {
             return PRESET_DETAIL_RESPONSE
         }
 
-        return tourApiClient.fetchTourDetail(detailParams, serviceSegment)
+        return tourApiClient.fetchTourDetail(detailParams, languageCode)
     }
 
     private companion object {

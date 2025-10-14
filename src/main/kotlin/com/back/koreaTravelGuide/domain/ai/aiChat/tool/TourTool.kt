@@ -43,11 +43,23 @@ class TourTool(
             required = true,
         )
         areaAndSigunguCode: String,
+        @ToolParam(
+            description =
+                "사용자가 대화에서 사용하는 언어를 파악하여 해당하는 서비스 코드를 선택하세요. " +
+                    "예: 사용자가 한국어로 대화하면 'KorService2', 영어로 대화하면 'EngService2'를 사용하세요. " +
+                    "사용 가능한 언어 코드: ${BuildConfig.LANGUAGE_CODES_DESCRIPTION}. " +
+                    "언어를 파악할 수 없으면 'EngService2'를 사용하세요.",
+            required = true,
+        )
+        languageCode: String,
     ): String {
-        log.info("🔧 [TOOL CALLED] getAreaBasedTourInfo - contentTypeId: $contentTypeId, areaAndSigunguCode: $areaAndSigunguCode")
+        log.info(
+            "🔧 [TOOL CALLED] getAreaBasedTourInfo - " +
+                "contentTypeId: $contentTypeId, areaAndSigunguCode: $areaAndSigunguCode, languageCode: $languageCode",
+        )
 
         val tourParams = tourService.parseParams(contentTypeId, areaAndSigunguCode)
-        val tourInfo = tourService.fetchTours(tourParams)
+        val tourInfo = tourService.fetchTours(tourParams, languageCode)
 
         return try {
             val result = tourInfo.let { objectMapper.writeValueAsString(it) }
@@ -95,16 +107,25 @@ class TourTool(
         mapY: String = "37.563446",
         @ToolParam(description = "검색 반경(미터 단위)", required = true)
         radius: String = "100",
+        @ToolParam(
+            description =
+                "사용자가 대화에서 사용하는 언어를 파악하여 해당하는 서비스 코드를 선택하세요. " +
+                    "예: 사용자가 한국어로 대화하면 'KorService2', 영어로 대화하면 'EngService2'를 사용하세요. " +
+                    "사용 가능한 언어 코드: ${BuildConfig.LANGUAGE_CODES_DESCRIPTION}. " +
+                    "언어를 파악할 수 없으면 'EngService2'를 사용하세요.",
+            required = true,
+        )
+        languageCode: String,
     ): String {
         log.info(
             "🔧 [TOOL CALLED] getLocationBasedTourInfo - " +
                 "contentTypeId: $contentTypeId, area: $areaAndSigunguCode, " +
-                "mapX: $mapX, mapY: $mapY, radius: $radius",
+                "mapX: $mapX, mapY: $mapY, radius: $radius, languageCode: $languageCode",
         )
 
         val tourParams = tourService.parseParams(contentTypeId, areaAndSigunguCode)
         val locationBasedParams = TourLocationBasedParams(mapX, mapY, radius)
-        val tourLocationBasedInfo = tourService.fetchLocationBasedTours(tourParams, locationBasedParams)
+        val tourLocationBasedInfo = tourService.fetchLocationBasedTours(tourParams, locationBasedParams, languageCode)
 
         return try {
             val result = tourLocationBasedInfo.let { objectMapper.writeValueAsString(it) }
@@ -131,11 +152,20 @@ class TourTool(
             required = true,
         )
         contentId: String = "127974",
+        @ToolParam(
+            description =
+                "사용자가 대화에서 사용하는 언어를 파악하여 해당하는 서비스 코드를 선택하세요. " +
+                    "예: 사용자가 한국어로 대화하면 'KorService2', 영어로 대화하면 'EngService2'를 사용하세요. " +
+                    "사용 가능한 언어 코드: ${BuildConfig.LANGUAGE_CODES_DESCRIPTION}. " +
+                    "언어를 파악할 수 없으면 'EngService2'를 사용하세요.",
+            required = true,
+        )
+        languageCode: String,
     ): String {
-        log.info("🔧 [TOOL CALLED] getTourDetailInfo - contentId: $contentId")
+        log.info("🔧 [TOOL CALLED] getTourDetailInfo - contentId: $contentId, languageCode: $languageCode")
 
         val tourDetailParams = TourDetailParams(contentId)
-        val tourDetailInfo = tourService.fetchTourDetail(tourDetailParams)
+        val tourDetailInfo = tourService.fetchTourDetail(tourDetailParams, languageCode)
 
         return try {
             val result = tourDetailInfo.let { objectMapper.writeValueAsString(it) }

@@ -2,6 +2,7 @@ package com.back.koreaTravelGuide.domain.ai.aiChat.tool
 
 import com.back.koreaTravelGuide.common.logging.log
 import com.back.koreaTravelGuide.domain.guide.service.GuideService
+import com.back.koreaTravelGuide.domain.user.enums.Region
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.ai.tool.annotation.Tool
 import org.springframework.ai.tool.annotation.ToolParam
@@ -14,7 +15,12 @@ class GuideFinderTool(
 ) {
     @Tool(description = "특정 지역(region)에서 활동하는 여행 가이드 목록을 검색합니다.")
     fun findGuidesByRegion(
-        @ToolParam(description = "검색할 지역 이름. 예: '서울', '부산', '강남구'", required = true)
+        @ToolParam(
+            description =
+                "검색할 지역의 영어 코드 (대문자). " +
+                    "사용 가능한 지역: ${Region.ALL_REGIONS_DESCRIPTION}",
+            required = true,
+        )
         region: String,
     ): String {
         log.info("🔧 [TOOL CALLED] findGuidesByRegion - region: $region")
