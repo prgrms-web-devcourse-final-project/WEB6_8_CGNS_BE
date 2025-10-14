@@ -9,7 +9,8 @@ class TourParamsParser {
         contentTypeId: String,
         areaAndSigunguCode: String,
     ): TourParams {
-        val codes = areaAndSigunguCode.split(",").map { it.trim() }
+        // 하이픈(-) 또는 쉼표(,) 둘 다 처리 (AI가 어떤 형식으로 보내도 작동)
+        val codes = areaAndSigunguCode.split(",", "-").map { it.trim() }
 
         val areaCode = codes.getOrNull(0)
         val sigunguCode = codes.getOrNull(1)
