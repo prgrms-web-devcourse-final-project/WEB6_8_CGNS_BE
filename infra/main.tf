@@ -210,6 +210,13 @@ yum install docker -y
 systemctl enable docker
 systemctl start docker
 
+# docker-compose 설치
+echo "docker-compose 설치 중..."
+curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+chmod +x /usr/local/bin/docker-compose
+ln -sf /usr/local/bin/docker-compose /usr/bin/docker-compose
+docker-compose --version
+
 # 도커 네트워크 생성
 docker network create common
 
@@ -263,33 +270,48 @@ CREATE DATABASE \"${var.app_1_db_name}\" OWNER team11;
 GRANT ALL PRIVILEGES ON DATABASE \"${var.app_1_db_name}\" TO team11;
 "
 
-# rabbitmq 설치
-docker run -d \
-  --name rabbitmq_1 \
-  --restart unless-stopped \
-  --network common \
-  -p 5672:5672 \
-  -p 61613:61613 \
-  -p 15672:15672 \
-  -e RABBITMQ_DEFAULT_USER=admin \
-  -e RABBITMQ_DEFAULT_PASS=${var.password_1} \
-  -e TZ=Asia/Seoul \
-  -v /dockerProjects/rabbitmq_1/volumes/data:/var/lib/rabbitmq \
-  rabbitmq:3-management
+# RabbitMQ docker-compose.yml 생성
+mkdir -p /dockerProjects/rabbitmq_1
+cat > /dockerProjects/rabbitmq_1/docker-compose.yml <<'RABBITMQ_COMPOSE'
+version: "3.8"
 
-# RabbitMQ가 준비될 때까지 대기
-echo "RabbitMQ가 기동될 때까지 대기 중..."
-until docker exec rabbitmq_1 rabbitmqctl status &> /dev/null; do
-  echo "RabbitMQ가 아직 준비되지 않음. 5초 후 재시도..."
-  sleep 5
-done
-echo "RabbitMQ가 준비됨. STOMP 플러그인 활성화 중..."
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq_1
+    restart: unless-stopped
+    networks:
+      - common
+    ports:
+      - "5672:5672"
+      - "61613:61613"
+      - "15672:15672"
+    environment:
+      TZ: Asia/Seoul
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: \${PASSWORD_1}
+    volumes:
+      - /dockerProjects/rabbitmq_1/volumes/etc/rabbitmq:/etc/rabbitmq
+      - /dockerProjects/rabbitmq_1/volumes/var/lib/rabbitmq:/var/lib/rabbitmq
+      - /dockerProjects/rabbitmq_1/volumes/var/log/rabbitmq:/var/log/rabbitmq
+    command: >
+      sh -c "
+        rabbitmq-plugins enable rabbitmq_management &&
+        rabbitmq-plugins enable rabbitmq_stomp &&
+        rabbitmq-server
+      "
 
-# RabbitMQ STOMP 플러그인 활성화
-docker exec rabbitmq_1 rabbitmq-plugins enable rabbitmq_stomp
-docker exec rabbitmq_1 rabbitmq-plugins enable rabbitmq_management
+networks:
+  common:
+    external: true
+RABBITMQ_COMPOSE
 
-echo "RabbitMQ 설치 및 설정 완료!"
+# RabbitMQ 시작
+echo "RabbitMQ 시작 중..."
+cd /dockerProjects/rabbitmq_1
+docker-compose up -d
+
+echo "RabbitMQ docker-compose 설치 완료!"
 
 echo "${var.github_access_token_1}" | docker login ghcr.io -u ${var.github_access_token_1_owner} --password-stdin
 

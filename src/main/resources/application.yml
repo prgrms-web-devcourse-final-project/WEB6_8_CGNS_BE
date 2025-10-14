@@ -11,6 +11,7 @@ spring:
     exclude:
       - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration # Redis 없어도 실행 가능하도록 변경
       - org.springframework.boot.autoconfigure.session.SessionAutoConfiguration # Redis 없어도 실행 가능하도록 변경
+      - org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration # RabbitMQ 없어도 실행 가능하도록 변경 (dev용)
   config:
     import: 
       - "optional:file:.env[.properties]"
