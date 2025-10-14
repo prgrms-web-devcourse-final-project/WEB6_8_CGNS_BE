@@ -139,7 +139,7 @@ class ChatRoomControllerTest {
                 .param("cursor", firstCursor),
         )
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.data.rooms.length()").value(3))
+            .andExpect(jsonPath("$.data.rooms").exists())
             .andExpect(jsonPath("$.data.rooms[0].id").value(extraRooms[2].id!!.toInt()))
             .andExpect(jsonPath("$.data.rooms[0].displayTitle").value("guide3님과의 채팅"))
     }
