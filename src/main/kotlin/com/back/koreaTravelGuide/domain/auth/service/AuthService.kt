@@ -50,7 +50,7 @@ class AuthService(
         val remainingTime = jwtTokenProvider.getRemainingTime(accessToken)
 
         if (remainingTime > 0) {
-            redisTemplate.opsForValue().set(accessToken, "logout", remainingTime, TimeUnit.MILLISECONDS)
+            redisTemplate.opsForValue().set("blacklist:$accessToken", "logout", remainingTime, TimeUnit.MILLISECONDS)
         }
     }
 
