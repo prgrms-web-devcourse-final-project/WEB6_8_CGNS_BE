@@ -20,7 +20,7 @@ class JwtAuthenticationFilter(
     ) {
         val token = resolveToken(request)
 
-        val isBlacklisted = if (token != null) redisTemplate.opsForValue().get(token) != null else false
+        val isBlacklisted = if (token != null) redisTemplate.opsForValue().get("blacklist:$token") != null else false
 
         if (token != null && !isBlacklisted && jwtTokenProvider.validateToken(token)) {
             val authentication = jwtTokenProvider.getAuthentication(token)
