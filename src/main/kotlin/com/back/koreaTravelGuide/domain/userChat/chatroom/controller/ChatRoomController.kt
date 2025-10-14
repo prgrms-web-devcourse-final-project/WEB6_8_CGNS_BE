@@ -42,7 +42,8 @@ class ChatRoomController(
     ): ResponseEntity<ApiResponse<ChatRoomResponse>> {
         val authenticatedId = requesterId ?: throw AccessDeniedException("인증이 필요합니다.")
         val room = roomService.createOneToOneRoom(req.guideId, req.userId, authenticatedId)
-        return ResponseEntity.ok(ApiResponse(msg = "채팅방 시작", data = ChatRoomResponse.from(room)))
+        val responseData = roomService.toResponse(room, authenticatedId)
+        return ResponseEntity.ok(ApiResponse(msg = "채팅방 시작", data = responseData))
     }
 
     @DeleteMapping("/{roomId}")
@@ -61,7 +62,7 @@ class ChatRoomController(
         @AuthenticationPrincipal requesterId: Long?,
     ): ResponseEntity<ApiResponse<ChatRoomResponse>> {
         val authenticatedId = requesterId ?: throw AccessDeniedException("인증이 필요합니다.")
-        val room = roomService.get(roomId, authenticatedId)
-        return ResponseEntity.ok(ApiResponse(msg = "채팅방 조회", data = ChatRoomResponse.from(room)))
+        val responseData = roomService.getResponse(roomId, authenticatedId)
+        return ResponseEntity.ok(ApiResponse(msg = "채팅방 조회", data = responseData))
     }
 }

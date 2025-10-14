@@ -1,5 +1,7 @@
 package com.back.koreaTravelGuide.domain.userChat.chatroom.service
 
+import com.back.koreaTravelGuide.domain.user.entity.User
+import com.back.koreaTravelGuide.domain.user.repository.UserRepository
 import com.back.koreaTravelGuide.domain.userChat.chatmessage.repository.ChatMessageRepository
 import com.back.koreaTravelGuide.domain.userChat.chatroom.dto.ChatRoomListResponse
 import com.back.koreaTravelGuide.domain.userChat.chatroom.dto.ChatRoomResponse
@@ -17,6 +19,7 @@ import java.util.NoSuchElementException
 class ChatRoomService(
     private val roomRepository: ChatRoomRepository,
     private val messageRepository: ChatMessageRepository,
+    private val userRepository: UserRepository,
 ) {
     @Transactional
     fun createOneToOneRoom(
@@ -74,7 +77,11 @@ class ChatRoomService(
         val (cursorUpdatedAt, cursorRoomId) = parseCursor(cursor)
         val pageable = PageRequest.of(0, limit)
         val rooms = roomRepository.findPagedByMember(requesterId, cursorUpdatedAt, cursorRoomId, pageable)
-        val roomResponses = rooms.map(ChatRoomResponse::from)
+        val usersById = loadUsersFor(rooms)
+        val roomResponses =
+            rooms.map { room ->
+                toResponse(room, requesterId, usersById)
+            }
         val nextCursor =
             if (roomResponses.size < limit) {
                 null
@@ -88,6 +95,52 @@ class ChatRoomService(
             rooms = roomResponses,
             nextCursor = nextCursor,
         )
+    }
+
+    @Transactional(readOnly = true)
+    fun getResponse(
+        roomId: Long,
+        requesterId: Long,
+    ): ChatRoomResponse {
+        val room = get(roomId, requesterId)
+        val usersById = loadUsersFor(listOf(room))
+        return toResponse(room, requesterId, usersById)
+    }
+
+    fun toResponse(
+        room: ChatRoom,
+        viewerId: Long,
+    ): ChatRoomResponse {
+        val usersById = loadUsersFor(listOf(room))
+        return toResponse(room, viewerId, usersById)
+    }
+
+    private fun toResponse(
+        room: ChatRoom,
+        viewerId: Long,
+        cachedUsers: Map<Long, User>,
+    ): ChatRoomResponse {
+        val displayTitle = buildDisplayTitle(room, viewerId, cachedUsers)
+        return ChatRoomResponse.from(room, displayTitle)
+    }
+
+    private fun loadUsersFor(rooms: Collection<ChatRoom>): Map<Long, User> {
+        val ids = rooms.flatMap { listOf(it.guideId, it.userId) }.toSet()
+        if (ids.isEmpty()) {
+            return emptyMap()
+        }
+        return userRepository.findAllById(ids).associateBy { it.id!! }
+    }
+
+    private fun buildDisplayTitle(
+        room: ChatRoom,
+        viewerId: Long,
+        cachedUsers: Map<Long, User>,
+    ): String {
+        val guideNickname = cachedUsers[room.guideId]?.nickname ?: "Guide-${room.guideId}"
+        val userNickname = cachedUsers[room.userId]?.nickname ?: "User-${room.userId}"
+        val counterpartName = if (viewerId == room.guideId) userNickname else guideNickname
+        return "${counterpartName}님과의 채팅"
     }
 
     private fun parseCursor(cursor: String?): Pair<ZonedDateTime?, Long?> {
