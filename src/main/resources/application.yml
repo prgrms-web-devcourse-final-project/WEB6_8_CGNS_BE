@@ -1,4 +1,4 @@
-# 서버 설정 (개발용) - Updated for deployment
+# 서버 설정 (개발용) - Trigger deployment after RabbitMQ config fix
 server:
   port: 8080
   error:
