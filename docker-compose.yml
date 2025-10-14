@@ -3,7 +3,10 @@ version: "3.8"
 services:
   rabbit:
     image: rabbitmq:3-management       # 버전 명시 권장 (예: 3.13-management)
-    container_name: rabbitmq-1
+    # 2025-10-14: 컨테이너 이름을 애플리케이션 설정과 일치하도록 수정
+    # 기존: rabbitmq-1 (하이픈 사용)
+    # 수정: rabbitmq_1 (언더스코어 사용, application.yml의 RABBITMQ_HOST와 일치)
+    container_name: rabbitmq_1
     networks:
       - common                          # 이미 존재하는 공용 네트워크 사용
     ports:

@@ -264,11 +264,17 @@ until docker exec postgresql_1 pg_isready -U postgres &> /dev/null; do
 done
 echo "PostgreSQL이 준비됨. 초기화 스크립트 실행 중..."
 
-docker exec postgresql_1 psql -U postgres -c "
-CREATE USER team11 WITH PASSWORD '${var.password_1}';
-CREATE DATABASE \"${var.app_1_db_name}\" OWNER team11;
-GRANT ALL PRIVILEGES ON DATABASE \"${var.app_1_db_name}\" TO team11;
-"
+# 기존 코드 (트랜잭션 블록 에러로 실패)
+# docker exec postgresql_1 psql -U postgres -c "
+# CREATE USER team11 WITH PASSWORD '${var.password_1}';
+# CREATE DATABASE \"${var.app_1_db_name}\" OWNER team11;
+# GRANT ALL PRIVILEGES ON DATABASE \"${var.app_1_db_name}\" TO team11;
+# "
+
+# SQL 명령을 각각 분리해서 실행 (CREATE DATABASE는 트랜잭션 안에서 실행 불가)
+docker exec postgresql_1 psql -U postgres -c "CREATE USER team11 WITH PASSWORD '${var.password_1}';"
+docker exec postgresql_1 psql -U postgres -c "CREATE DATABASE \"${var.app_1_db_name}\" OWNER team11;"
+docker exec postgresql_1 psql -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE \"${var.app_1_db_name}\" TO team11;"
 
 # RabbitMQ docker-compose.yml 생성
 mkdir -p /dockerProjects/rabbitmq_1
@@ -289,7 +295,10 @@ services:
     environment:
       TZ: Asia/Seoul
       RABBITMQ_DEFAULT_USER: admin
-      RABBITMQ_DEFAULT_PASS: \${PASSWORD_1}
+      # 2025-10-14: RabbitMQ 비밀번호 환경변수 치환 문제 수정
+      # 기존: RABBITMQ_DEFAULT_PASS: ${PASSWORD_1} (docker-compose에서 빈 문자열로 치환됨)
+      # 수정: RABBITMQ_DEFAULT_PASS: ${var.password_1} (Terraform 변수로 직접 치환)
+      RABBITMQ_DEFAULT_PASS: ${var.password_1}
     volumes:
       - /dockerProjects/rabbitmq_1/volumes/etc/rabbitmq:/etc/rabbitmq
       - /dockerProjects/rabbitmq_1/volumes/var/lib/rabbitmq:/var/lib/rabbitmq
