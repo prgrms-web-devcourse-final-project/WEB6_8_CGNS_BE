@@ -210,6 +210,13 @@ yum install docker -y
 systemctl enable docker
 systemctl start docker
 
+# docker-compose 설치
+echo "docker-compose 설치 중..."
+curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+chmod +x /usr/local/bin/docker-compose
+ln -sf /usr/local/bin/docker-compose /usr/bin/docker-compose
+docker-compose --version
+
 # 도커 네트워크 생성
 docker network create common
 
@@ -262,13 +269,6 @@ CREATE USER team11 WITH PASSWORD '${var.password_1}';
 CREATE DATABASE \"${var.app_1_db_name}\" OWNER team11;
 GRANT ALL PRIVILEGES ON DATABASE \"${var.app_1_db_name}\" TO team11;
 "
-
-# docker-compose 설치
-echo "docker-compose 설치 중..."
-curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-chmod +x /usr/local/bin/docker-compose
-ln -sf /usr/local/bin/docker-compose /usr/bin/docker-compose
-docker-compose --version
 
 # RabbitMQ docker-compose.yml 생성
 mkdir -p /dockerProjects/rabbitmq_1
