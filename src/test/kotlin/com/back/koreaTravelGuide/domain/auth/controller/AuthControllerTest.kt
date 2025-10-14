@@ -119,7 +119,7 @@ class AuthControllerTest {
         // verify
         Mockito.verify(
             valueOperations,
-        ).set(Mockito.eq(accessToken), Mockito.eq("logout"), Mockito.anyLong(), Mockito.eq(TimeUnit.MILLISECONDS))
+        ).set(Mockito.eq("blacklist:$accessToken"), Mockito.eq("logout"), Mockito.anyLong(), Mockito.eq(TimeUnit.MILLISECONDS))
     }
 
     @Test
