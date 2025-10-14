@@ -4,8 +4,8 @@ import com.back.koreaTravelGuide.common.ApiResponse
 import com.back.koreaTravelGuide.domain.userChat.chatmessage.dto.ChatMessageResponse
 import com.back.koreaTravelGuide.domain.userChat.chatmessage.dto.ChatMessageSendRequest
 import com.back.koreaTravelGuide.domain.userChat.chatmessage.service.ChatMessageService
+import com.back.koreaTravelGuide.domain.userChat.chatmessage.usecase.ChatMessagePublisher
 import org.springframework.http.ResponseEntity
-import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.GetMapping
@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api/userchat/rooms")
 class ChatMessageController(
     private val messageService: ChatMessageService,
-    private val messagingTemplate: SimpMessagingTemplate,
+    private val chatMessagePublisher: ChatMessagePublisher,
 ) {
     @GetMapping("/{roomId}/messages")
     fun listMessages(
@@ -49,8 +49,8 @@ class ChatMessageController(
         val memberId = senderId ?: throw AccessDeniedException("인증이 필요합니다.")
         val saved = messageService.send(roomId, memberId, req.content)
         val response = ChatMessageResponse.from(saved)
-        messagingTemplate.convertAndSend(
-            "/topic/userchat/$roomId",
+        chatMessagePublisher.publishUserChat(
+            roomId,
             ApiResponse(msg = "메시지 전송", data = response),
         )
         return ResponseEntity.status(201).body(ApiResponse(msg = "메시지 전송", data = response))

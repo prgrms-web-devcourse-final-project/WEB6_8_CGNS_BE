@@ -4,10 +4,10 @@ import com.back.koreaTravelGuide.common.ApiResponse
 import com.back.koreaTravelGuide.domain.userChat.chatmessage.dto.ChatMessageResponse
 import com.back.koreaTravelGuide.domain.userChat.chatmessage.dto.ChatMessageSendRequest
 import com.back.koreaTravelGuide.domain.userChat.chatmessage.service.ChatMessageService
+import com.back.koreaTravelGuide.domain.userChat.chatmessage.usecase.ChatMessagePublisher
 import org.springframework.messaging.handler.annotation.DestinationVariable
 import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.messaging.handler.annotation.Payload
-import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.stereotype.Controller
 import java.security.Principal
@@ -15,7 +15,7 @@ import java.security.Principal
 @Controller
 class ChatMessageSocketController(
     private val chatMessageService: ChatMessageService,
-    private val messagingTemplate: SimpMessagingTemplate,
+    private val chatMessagePublisher: ChatMessagePublisher,
 ) {
     @MessageMapping("/userchat/{roomId}/messages")
     fun handleMessage(
@@ -26,8 +26,8 @@ class ChatMessageSocketController(
         val senderId = principal.name.toLongOrNull() ?: throw AccessDeniedException("인증이 필요합니다.")
         val saved = chatMessageService.send(roomId, senderId, req.content)
         val response = ChatMessageResponse.from(saved)
-        messagingTemplate.convertAndSend(
-            "/topic/userchat/$roomId",
+        chatMessagePublisher.publishUserChat(
+            roomId,
             ApiResponse(msg = "메시지 전송", data = response),
         )
     }

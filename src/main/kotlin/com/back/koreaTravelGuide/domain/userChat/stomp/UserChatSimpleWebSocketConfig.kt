@@ -1,17 +1,17 @@
-package com.back.koreaTravelGuide.domain.userChat.config
+package com.back.koreaTravelGuide.domain.userChat.stomp
 
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Profile
 import org.springframework.messaging.simp.config.ChannelRegistration
 import org.springframework.messaging.simp.config.MessageBrokerRegistry
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer
 
-// userChat에서만 사용할 것 같아서 전역에 두지 않고 userChat 도메인에 두었음
-
+@Profile("!prod")
 @Configuration
 @EnableWebSocketMessageBroker
-class UserChatWebSocketConfig(
+class UserChatSimpleWebSocketConfig(
     private val userChatStompAuthChannelInterceptor: UserChatStompAuthChannelInterceptor,
 ) : WebSocketMessageBrokerConfigurer {
     override fun registerStompEndpoints(registry: StompEndpointRegistry) {
@@ -21,8 +21,8 @@ class UserChatWebSocketConfig(
     }
 
     override fun configureMessageBroker(registry: MessageBrokerRegistry) {
-        registry.enableSimpleBroker("/topic")
         registry.setApplicationDestinationPrefixes("/pub")
+        registry.enableSimpleBroker("/topic")
     }
 
     override fun configureClientInboundChannel(registration: ChannelRegistration) {
