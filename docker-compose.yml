@@ -1,0 +1,23 @@
+version: "3.8"
+
+services:
+  rabbit:
+    image: rabbitmq:3-management       # 버전 명시 권장 (예: 3.13-management)
+    container_name: rabbitmq-1
+    ports:
+      - "5672:5672"     # AMQP (Spring ↔ RabbitMQ)
+      - "61613:61613"   # STOMP (Relay가 여기에 붙음)
+      - "15672:15672"   # Management UI (로컬에서만)
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
+    volumes:             # 영속화가 필요할 때만 유지
+      - ./dockerProjects/rabbitmq-1/volumes/etc/rabbitmq:/etc/rabbitmq
+      - ./dockerProjects/rabbitmq-1/volumes/var/lib/rabbitmq:/var/lib/rabbitmq
+      - ./dockerProjects/rabbitmq-1/volumes/var/log/rabbitmq:/var/log/rabbitmq
+    command: >
+      sh -c "
+        rabbitmq-plugins enable rabbitmq_management &&
+        rabbitmq-plugins enable rabbitmq_stomp &&
+        rabbitmq-server
+      "

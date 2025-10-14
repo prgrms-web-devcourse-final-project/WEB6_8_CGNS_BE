@@ -5,7 +5,6 @@ import com.back.koreaTravelGuide.domain.ai.tour.dto.TourResponse
 import com.back.koreaTravelGuide.domain.ai.weather.dto.MidForecastDto
 import com.back.koreaTravelGuide.domain.ai.weather.dto.TemperatureAndLandForecastDto
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.KotlinModule
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.cache.CacheManager
@@ -44,13 +43,6 @@ class RedisConfig {
         }
         return LettuceConnectionFactory(redisConfiguration)
     }
-
-    @Bean
-    fun objectMapper(): ObjectMapper =
-        ObjectMapper().apply {
-            // Kotlin 모듈 등록 (data class 생성자 인식)
-            registerModule(KotlinModule.Builder().build())
-        }
 
     @Bean
     fun redisTemplate(connectionFactory: RedisConnectionFactory): RedisTemplate<String, String> {

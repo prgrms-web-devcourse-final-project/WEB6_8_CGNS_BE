@@ -32,6 +32,16 @@ spring:
       password: ${REDIS_PASSWORD:}
       database: 0
 
+  # RabbitMQ 설정 (WebSocket STOMP Relay용)
+  rabbitmq:
+    host: ${RABBITMQ_HOST}
+    port: ${RABBITMQ_PORT}
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
+    stomp-port: ${RABBITMQ_STOMP_PORT}
+    connection-timeout: 5000
+    requested-heartbeat: 30
+
   session:
     store-type: redis
     timeout: 30m
