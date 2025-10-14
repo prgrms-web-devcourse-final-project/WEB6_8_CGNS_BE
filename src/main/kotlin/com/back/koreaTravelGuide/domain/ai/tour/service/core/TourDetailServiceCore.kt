@@ -14,24 +14,24 @@ class TourDetailServiceCore(
 ) : TourDetailUseCase {
     @Cacheable(
         "tourDetail",
-        key = "#detailParams.contentId + '_' + #serviceSegment",
+        key = "#detailParams.contentId + '_' + #languageCode",
         unless = "#result == null",
     )
     override fun fetchTourDetail(
         detailParams: TourDetailParams,
-        serviceSegment: String,
+        languageCode: String,
     ): TourDetailResponse {
         // 을숙도 철새공원 상세정보(EngService2, contentId 264247) 프리셋
-        if (serviceSegment == ENGLISH_SERVICE_SEGMENT && detailParams.contentId == "264247") {
+        if (languageCode == ENGLISH_SERVICE_SEGMENT && detailParams.contentId == "264247") {
             return PRESET_DETAIL_RESPONSE_EN
         }
 
         // 동촌유원지 상세정보(KorService2, contentId 127974) 프리셋
-        if (serviceSegment == KOREAN_SERVICE_SEGMENT && detailParams.contentId == "127974") {
+        if (languageCode == KOREAN_SERVICE_SEGMENT && detailParams.contentId == "127974") {
             return PRESET_DETAIL_RESPONSE
         }
 
-        return tourApiClient.fetchTourDetail(detailParams, serviceSegment)
+        return tourApiClient.fetchTourDetail(detailParams, languageCode)
     }
 
     private companion object {

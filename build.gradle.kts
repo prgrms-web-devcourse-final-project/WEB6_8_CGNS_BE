@@ -137,6 +137,18 @@ buildConfig {
         file("src/main/resources/content-type-id.yml")
             .readText()
             .substringAfter("codes:")
+            .substringBefore("foreign-codes:")
+            .lines()
+            .filter { it.contains(":") }
+            .joinToString(", ") { line ->
+                val parts = line.split(":")
+                "${parts[0].trim()}: ${parts[1].trim().replace("\"", "")}"
+            }
+
+    val foreignContentTypeCodes =
+        file("src/main/resources/content-type-id.yml")
+            .readText()
+            .substringAfter("foreign-codes:")
             .lines()
             .filter { it.contains(":") }
             .joinToString(", ") { line ->
@@ -180,6 +192,7 @@ buildConfig {
 
     buildConfigField("String", "AREA_CODES_DESCRIPTION", "\"\"\"$areaCodes\"\"\"")
     buildConfigField("String", "CONTENT_TYPE_CODES_DESCRIPTION", "\"\"\"$contentTypeCodes\"\"\"")
+    buildConfigField("String", "FOREIGN_CONTENT_TYPE_CODES_DESCRIPTION", "\"\"\"$foreignContentTypeCodes\"\"\"")
     buildConfigField("String", "LANGUAGE_CODES_DESCRIPTION", "\"\"\"$languageCodesDescription\"\"\"")
     buildConfigField("String", "REGION_CODES_DESCRIPTION", "\"\"\"$regionCodes\"\"\"")
     buildConfigField("String", "KOREA_TRAVEL_GUIDE_SYSTEM", "\"\"\"$systemPrompt\"\"\"")

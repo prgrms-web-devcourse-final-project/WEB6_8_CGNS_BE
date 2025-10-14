@@ -15,16 +15,16 @@ class TourAreaBasedServiceCore(
     @Cacheable(
         "tourAreaBased",
         key =
-            "#tourParams.contentTypeId + '_' + #tourParams.areaCode + '_' + #tourParams.sigunguCode + '_' + #serviceSegment",
+            "#tourParams.contentTypeId + '_' + #tourParams.areaCode + '_' + #tourParams.sigunguCode + '_' + #languageCode",
         unless = "#result == null",
     )
     override fun fetchAreaBasedTours(
         tourParams: TourParams,
-        serviceSegment: String,
+        languageCode: String,
     ): TourResponse {
         // 부산 사하구 관광안내소(콘텐츠타입 76, EngService2)에 대한 프리셋 응답
         if (
-            serviceSegment == ENGLISH_SERVICE_SEGMENT &&
+            languageCode == ENGLISH_SERVICE_SEGMENT &&
             tourParams.contentTypeId == "76" &&
             tourParams.areaCode == "6" &&
             tourParams.sigunguCode == "10"
@@ -34,7 +34,7 @@ class TourAreaBasedServiceCore(
 
         // 부산 사하구 관광지 목록(콘텐츠타입 12, KorService2)에 대한 프리셋 응답
         if (
-            serviceSegment == KOREAN_SERVICE_SEGMENT &&
+            languageCode == KOREAN_SERVICE_SEGMENT &&
             tourParams.contentTypeId == "12" &&
             tourParams.areaCode == "6" &&
             tourParams.sigunguCode == "10"
@@ -42,7 +42,7 @@ class TourAreaBasedServiceCore(
             return PRESET_AREA_TOUR_RESPONSE
         }
 
-        return tourApiClient.fetchTourInfo(tourParams, serviceSegment)
+        return tourApiClient.fetchTourInfo(tourParams, languageCode)
     }
 
     private companion object {

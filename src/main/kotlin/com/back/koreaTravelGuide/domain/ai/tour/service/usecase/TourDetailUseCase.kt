@@ -6,6 +6,6 @@ import com.back.koreaTravelGuide.domain.ai.tour.dto.TourDetailResponse
 interface TourDetailUseCase {
     fun fetchTourDetail(
         detailParams: TourDetailParams,
-        serviceSegment: String,
+        languageCode: String,
     ): TourDetailResponse
 }

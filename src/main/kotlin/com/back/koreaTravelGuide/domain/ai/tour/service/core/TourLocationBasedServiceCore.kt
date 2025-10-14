@@ -18,13 +18,13 @@ class TourLocationBasedServiceCore(
         key =
             "#tourParams.contentTypeId + '_' + #tourParams.areaCode + '_' + #tourParams.sigunguCode + '_' + " +
                 "#locationParams.mapX + '_' + #locationParams.mapY + '_' + #locationParams.radius + '_' + " +
-                "#serviceSegment",
+                "#languageCode",
         unless = "#result == null",
     )
     override fun fetchLocationBasedTours(
         tourParams: TourParams,
         locationParams: TourLocationBasedParams,
-        serviceSegment: String,
+        languageCode: String,
     ): TourResponse {
         if (
             tourParams.contentTypeId == "39" &&
@@ -37,7 +37,7 @@ class TourLocationBasedServiceCore(
             return PRESET_LOCATION_BASED_RESPONSE
         }
 
-        return tourApiClient.fetchLocationBasedTours(tourParams, locationParams, serviceSegment)
+        return tourApiClient.fetchLocationBasedTours(tourParams, locationParams, languageCode)
     }
 
     private companion object {

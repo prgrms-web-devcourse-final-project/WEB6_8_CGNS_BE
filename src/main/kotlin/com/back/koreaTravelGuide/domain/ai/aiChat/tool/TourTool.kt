@@ -27,27 +27,35 @@ class TourTool(
     fun getAreaBasedTourInfo(
         @ToolParam(
             description =
-                "관광 타입 코드를 사용하세요. 사용자가 타입 이름을 말하면 해당하는 코드를 찾아서 사용해야 합니다. " +
-                    "예: 사용자가 '관광지'라고 하면 '12'를 사용하세요. " +
-                    "사용 가능한 타입 코드: ${BuildConfig.CONTENT_TYPE_CODES_DESCRIPTION}",
+                "STEP 1: 사용자 메시지의 언어를 파악하여 해당하는 서비스 코드를 선택하세요. " +
+                    "사용 가능한 언어 코드: ${BuildConfig.LANGUAGE_CODES_DESCRIPTION}",
+            required = true,
+        )
+        languageCode: String,
+        @ToolParam(
+            description =
+                "STEP 2: languageCode에 따라 관광 타입 코드를 선택하세요. " +
+                    "IF languageCode == 'KorService2' THEN 한국어 코드: ${BuildConfig.CONTENT_TYPE_CODES_DESCRIPTION}. " +
+                    "ELSE (EngService2, JpnService2, ChsService2, ChtService2) THEN " +
+                    "외국어 코드: ${BuildConfig.FOREIGN_CONTENT_TYPE_CODES_DESCRIPTION}",
             required = true,
         )
         contentTypeId: String,
         @ToolParam(
             description =
-                "지역 코드를 쉼표(,)로 구분해서 사용하세요. " +
-                    "예: 사용자가 '서울 강남구'라고 하면 AREA_CODES에서 '서울-강남구: 1-1'을 찾고, " +
-                    "하이픈(-)을 쉼표(,)로 바꿔서 '1,1'을 사용하세요. " +
-                    "광역시(인천, 대전 등)는 단일 코드만 사용: 예: '인천' → '2' (쉼표 없음). " +
+                "STEP 3: 지역 코드를 전달하세요. 하이픈(-) 또는 쉼표(,) 형식 모두 가능합니다. " +
                     "사용 가능한 지역 코드: ${BuildConfig.AREA_CODES_DESCRIPTION}",
             required = true,
         )
         areaAndSigunguCode: String,
     ): String {
-        log.info("🔧 [TOOL CALLED] getAreaBasedTourInfo - contentTypeId: $contentTypeId, areaAndSigunguCode: $areaAndSigunguCode")
+        log.info(
+            "🔧 [TOOL CALLED] getAreaBasedTourInfo - " +
+                "contentTypeId: $contentTypeId, areaAndSigunguCode: $areaAndSigunguCode, languageCode: $languageCode",
+        )
 
         val tourParams = tourService.parseParams(contentTypeId, areaAndSigunguCode)
-        val tourInfo = tourService.fetchTours(tourParams)
+        val tourInfo = tourService.fetchTours(tourParams, languageCode)
 
         return try {
             val result = tourInfo.let { objectMapper.writeValueAsString(it) }
@@ -74,17 +82,23 @@ class TourTool(
     fun getLocationBasedTourInfo(
         @ToolParam(
             description =
-                "관광 타입 코드를 사용하세요. 사용자가 타입 이름을 말하면 해당하는 코드를 찾아서 사용해야 합니다. " +
-                    "예: 사용자가 '음식점'이라고 하면 '39'를 사용하세요. " +
-                    "사용 가능한 타입 코드: ${BuildConfig.CONTENT_TYPE_CODES_DESCRIPTION}",
+                "STEP 1: 사용자 메시지의 언어를 파악하여 해당하는 서비스 코드를 선택하세요. " +
+                    "사용 가능한 언어 코드: ${BuildConfig.LANGUAGE_CODES_DESCRIPTION}",
+            required = true,
+        )
+        languageCode: String,
+        @ToolParam(
+            description =
+                "STEP 2: languageCode에 따라 관광 타입 코드를 선택하세요. " +
+                    "IF languageCode == 'KorService2' THEN 한국어 코드: ${BuildConfig.CONTENT_TYPE_CODES_DESCRIPTION}. " +
+                    "ELSE (EngService2, JpnService2, ChsService2, ChtService2) THEN " +
+                    "외국어 코드: ${BuildConfig.FOREIGN_CONTENT_TYPE_CODES_DESCRIPTION}",
             required = true,
         )
         contentTypeId: String,
         @ToolParam(
             description =
-                "지역 코드를 쉼표(,)로 구분해서 사용하세요. " +
-                    "예: 사용자가 '서울 중구'라고 하면 AREA_CODES에서 '서울-중구: 1-24'를 찾고, " +
-                    "하이픈(-)을 쉼표(,)로 바꿔서 '1,24'를 사용하세요. " +
+                "STEP 3: 지역 코드를 전달하세요. 하이픈(-) 또는 쉼표(,) 형식 모두 가능합니다. " +
                     "사용 가능한 지역 코드: ${BuildConfig.AREA_CODES_DESCRIPTION}",
             required = true,
         )
@@ -99,12 +113,12 @@ class TourTool(
         log.info(
             "🔧 [TOOL CALLED] getLocationBasedTourInfo - " +
                 "contentTypeId: $contentTypeId, area: $areaAndSigunguCode, " +
-                "mapX: $mapX, mapY: $mapY, radius: $radius",
+                "mapX: $mapX, mapY: $mapY, radius: $radius, languageCode: $languageCode",
         )
 
         val tourParams = tourService.parseParams(contentTypeId, areaAndSigunguCode)
         val locationBasedParams = TourLocationBasedParams(mapX, mapY, radius)
-        val tourLocationBasedInfo = tourService.fetchLocationBasedTours(tourParams, locationBasedParams)
+        val tourLocationBasedInfo = tourService.fetchLocationBasedTours(tourParams, locationBasedParams, languageCode)
 
         return try {
             val result = tourLocationBasedInfo.let { objectMapper.writeValueAsString(it) }
@@ -126,16 +140,23 @@ class TourTool(
     fun getTourDetailInfo(
         @ToolParam(
             description =
-                "조회할 관광정보의 콘텐츠 ID. " +
+                "STEP 1: 사용자 메시지의 언어를 파악하여 해당하는 서비스 코드를 선택하세요. " +
+                    "사용 가능한 언어 코드: ${BuildConfig.LANGUAGE_CODES_DESCRIPTION}",
+            required = true,
+        )
+        languageCode: String,
+        @ToolParam(
+            description =
+                "STEP 2: 조회할 관광정보의 콘텐츠 ID. " +
                     "이전 Tool 호출 결과(getAreaBasedTourInfo 또는 getLocationBasedTourInfo)에서 받은 contentId를 사용하세요.",
             required = true,
         )
-        contentId: String = "127974",
+        contentId: String,
     ): String {
-        log.info("🔧 [TOOL CALLED] getTourDetailInfo - contentId: $contentId")
+        log.info("🔧 [TOOL CALLED] getTourDetailInfo - contentId: $contentId, languageCode: $languageCode")
 
         val tourDetailParams = TourDetailParams(contentId)
-        val tourDetailInfo = tourService.fetchTourDetail(tourDetailParams)
+        val tourDetailInfo = tourService.fetchTourDetail(tourDetailParams, languageCode)
 
         return try {
             val result = tourDetailInfo.let { objectMapper.writeValueAsString(it) }
@@ -154,13 +175,13 @@ class TourTool(
      * "areacode": "6" 부산
      * "sigungucode": "10" 사하구
      * "contenttypeid": "76" 관광지 (해외)
-     *  "serviceSegment" : "EngService2" (영어)
+     *  "languageCode" : "EngService2" (영어)
      *
      *
      *  2
      * fetchTourDetail - 상세조회
      * 케이스 : 콘텐츠ID가 "264247인 관광정보의 "상베 정보" 조회
      * "contentid": "264247,
-     * "serviceSegment" : "EngService2" (영어)
+     * "languageCode" : "EngService2" (영어)
      */
 }
