@@ -27,7 +27,7 @@ interface ChatRoomRepository : JpaRepository<ChatRoom, Long> {
         select r from ChatRoom r
         where (r.guideId = :memberId or r.userId = :memberId)
           and (
-            :cursorUpdatedAt is null
+            cast(:cursorUpdatedAt as timestamp) is null
             or r.updatedAt < :cursorUpdatedAt
             or (r.updatedAt = :cursorUpdatedAt and r.id < :cursorRoomId)
           )
