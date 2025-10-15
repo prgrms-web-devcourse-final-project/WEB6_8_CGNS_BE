@@ -2,7 +2,6 @@ package com.back.koreaTravelGuide.common.exception
 
 import com.back.koreaTravelGuide.common.ApiResponse
 import jakarta.servlet.http.HttpServletRequest
-import jakarta.servlet.http.HttpServletResponse
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -44,21 +43,7 @@ class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(IllegalStateException::class)
-    fun handleIllegalState(
-        ex: IllegalStateException,
-        response: HttpServletResponse,
-    ): ResponseEntity<ApiResponse<Void>> {
-        // Spring Session 무효화 예외는 별도 처리
-        if (ex.message?.contains("Session was invalidated") == true) {
-            logger.debug("Session invalidation during response (ignoring): {}", ex.message)
-            // 응답이 이미 커밋되었을 수 있으므로 상태 코드만 설정
-            if (!response.isCommitted) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse("세션이 만료되었습니다"))
-            }
-            // 이미 커밋된 경우 null 반환 (Spring이 처리)
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse("세션이 만료되었습니다"))
-        }
-
+    fun handleIllegalState(ex: IllegalStateException): ResponseEntity<ApiResponse<Void>> {
         logger.warn("부적절한 상태: {}", ex.message)
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiResponse(ex.message ?: "요청을 처리할 수 없는 상태입니다"))
     }
@@ -67,17 +52,7 @@ class GlobalExceptionHandler {
     fun handleGenericException(
         ex: Exception,
         request: HttpServletRequest,
-        response: HttpServletResponse,
     ): ResponseEntity<ApiResponse<Void>> {
-        // Spring Session 무효화 예외가 다른 예외 처리 중 발생한 경우
-        if (ex is IllegalStateException && ex.message?.contains("Session was invalidated") == true) {
-            logger.debug("Session invalidation during exception handling (ignoring): {}", ex.message)
-            if (!response.isCommitted) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse("세션이 만료되었습니다"))
-            }
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse("세션이 만료되었습니다"))
-        }
-
         // Static resource 예외는 무시 (favicon.ico, CSS, JS 등)
         if (ex is org.springframework.web.servlet.resource.NoResourceFoundException) {
             logger.debug("Static resource not found: {} at {}", ex.message, request.requestURI)
