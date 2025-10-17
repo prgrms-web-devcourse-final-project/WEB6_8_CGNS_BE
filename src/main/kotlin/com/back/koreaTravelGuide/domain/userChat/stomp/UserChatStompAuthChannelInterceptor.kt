@@ -1,6 +1,5 @@
 package com.back.koreaTravelGuide.domain.userChat.stomp
 
-import com.back.koreaTravelGuide.common.logging.log
 import com.back.koreaTravelGuide.common.security.JwtTokenProvider
 import org.springframework.messaging.Message
 import org.springframework.messaging.MessageChannel
@@ -21,7 +20,7 @@ class UserChatStompAuthChannelInterceptor(
     ): Message<*>? {
         val accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor::class.java) ?: return message
 
-        log.info("📨 [STOMP] Command: ${accessor.command}, User: ${accessor.user}, SessionId: ${accessor.sessionId}")
+//        log.info("📨 [STOMP] Command: ${accessor.command}, User: ${accessor.user}, SessionId: ${accessor.sessionId}")
 
         if (accessor.command == StompCommand.CONNECT) {
             val rawHeader =
@@ -32,9 +31,9 @@ class UserChatStompAuthChannelInterceptor(
                 throw AuthenticationCredentialsNotFoundException("Invalid JWT token")
             }
             accessor.user = jwtTokenProvider.getAuthentication(token)
-            log.info("✅ [STOMP] CONNECT authenticated: userId=${accessor.user?.name}")
+//            log.info("✅ [STOMP] CONNECT authenticated: userId=${accessor.user?.name}")
         } else if (accessor.user == null) {
-            log.error("❌ [STOMP] Unauthenticated ${accessor.command} request - SessionId: ${accessor.sessionId}")
+//            log.error("❌ [STOMP] Unauthenticated ${accessor.command} request - SessionId: ${accessor.sessionId}")
             throw AuthenticationCredentialsNotFoundException("Unauthenticated STOMP request")
         }
 
