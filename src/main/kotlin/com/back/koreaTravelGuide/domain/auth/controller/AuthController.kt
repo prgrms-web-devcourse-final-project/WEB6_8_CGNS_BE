@@ -46,11 +46,11 @@ class AuthController(
     @Operation(summary = "신규 사용자 역할 선택")
     @PostMapping("/role")
     fun updateUserRole(
-        authentication: Authentication,
+        authentication: Authentication?,
         @RequestBody request: UserRoleUpdateRequest,
         response: HttpServletResponse,
     ): ResponseEntity<ApiResponse<AccessTokenResponse>> {
-        val userId = authentication.getUserId()
+        val userId = authentication?.getUserId() ?: throw IllegalArgumentException("인증되지 않은 사용자입니다.")
         val (accessToken, refreshToken) = authService.updateRoleAndLogin(userId, request.role)
 
         val cookie =

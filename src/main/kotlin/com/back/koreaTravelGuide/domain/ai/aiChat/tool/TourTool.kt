@@ -49,7 +49,7 @@ class TourTool(
         )
         areaAndSigunguCode: String,
     ): String {
-        log.info(
+        log.debug(
             "🔧 [TOOL CALLED] getAreaBasedTourInfo - " +
                 "contentTypeId: $contentTypeId, areaAndSigunguCode: $areaAndSigunguCode, languageCode: $languageCode",
         )
@@ -59,7 +59,7 @@ class TourTool(
 
         return try {
             val result = tourInfo.let { objectMapper.writeValueAsString(it) }
-            log.info("✅ [TOOL RESULT] getAreaBasedTourInfo - 결과: ${result.take(100)}...")
+            log.debug("✅ [TOOL RESULT] getAreaBasedTourInfo - 결과: ${result.take(100)}...")
             result
         } catch (e: Exception) {
             log.error("❌ [TOOL ERROR] getAreaBasedTourInfo - 예외 발생", e)
@@ -110,7 +110,7 @@ class TourTool(
         @ToolParam(description = "검색 반경(미터 단위)", required = true)
         radius: String = "100",
     ): String {
-        log.info(
+        log.debug(
             "🔧 [TOOL CALLED] getLocationBasedTourInfo - " +
                 "contentTypeId: $contentTypeId, area: $areaAndSigunguCode, " +
                 "mapX: $mapX, mapY: $mapY, radius: $radius, languageCode: $languageCode",
@@ -122,7 +122,7 @@ class TourTool(
 
         return try {
             val result = tourLocationBasedInfo.let { objectMapper.writeValueAsString(it) }
-            log.info("✅ [TOOL RESULT] getLocationBasedTourInfo - 결과: ${result.take(100)}...")
+            log.debug("✅ [TOOL RESULT] getLocationBasedTourInfo - 결과: ${result.take(100)}...")
             result
         } catch (e: Exception) {
             log.error("❌ [TOOL ERROR] getLocationBasedTourInfo - 예외 발생", e)
@@ -153,14 +153,14 @@ class TourTool(
         )
         contentId: String,
     ): String {
-        log.info("🔧 [TOOL CALLED] getTourDetailInfo - contentId: $contentId, languageCode: $languageCode")
+        log.debug("🔧 [TOOL CALLED] getTourDetailInfo - contentId: $contentId, languageCode: $languageCode")
 
         val tourDetailParams = TourDetailParams(contentId)
         val tourDetailInfo = tourService.fetchTourDetail(tourDetailParams, languageCode)
 
         return try {
             val result = tourDetailInfo.let { objectMapper.writeValueAsString(it) }
-            log.info("✅ [TOOL RESULT] getTourDetailInfo - 결과: ${result.take(100)}...")
+            log.debug("✅ [TOOL RESULT] getTourDetailInfo - 결과: ${result.take(100)}...")
             result
         } catch (e: Exception) {
             log.error("❌ [TOOL ERROR] getTourDetailInfo - 예외 발생", e)

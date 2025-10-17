@@ -15,16 +15,16 @@ class WeatherTool(
 ) {
     @Tool(description = "전국 중기예보를 조회합니다")
     fun getWeatherForecast(): String {
-        log.info("🔧 [TOOL CALLED] getWeatherForecast")
+        log.debug("🔧 [TOOL CALLED] getWeatherForecast")
 
         val forecasts = weatherService.getWeatherForecast()
-        log.info("📦 [DATA] forecasts is null? ${forecasts == null}")
-        log.info("📦 [DATA] forecasts 타입: ${forecasts?.javaClass?.name}")
-        log.info("📦 [DATA] forecasts 내용: $forecasts")
+        log.debug("📦 [DATA] forecasts is null? ${forecasts == null}")
+        log.debug("📦 [DATA] forecasts 타입: ${forecasts?.javaClass?.name}")
+        log.debug("📦 [DATA] forecasts 내용: $forecasts")
 
         return try {
             val result = forecasts?.let { objectMapper.writeValueAsString(it) } ?: "중기예보 데이터를 가져올 수 없습니다."
-            log.info("✅ [TOOL RESULT] getWeatherForecast - 결과: $result")
+            log.debug("✅ [TOOL RESULT] getWeatherForecast - 결과: $result")
             result
         } catch (e: Exception) {
             log.error("❌ [TOOL ERROR] getWeatherForecast - 예외 발생: ${e.javaClass.name}", e)
@@ -41,13 +41,13 @@ class WeatherTool(
         )
         location: String,
     ): String {
-        log.info("🔧 [TOOL CALLED] getRegionalWeatherDetails - location: $location")
+        log.debug("🔧 [TOOL CALLED] getRegionalWeatherDetails - location: $location")
 
         val forecasts = weatherService.getTemperatureAndLandForecast(location)
 
         return try {
             val result = forecasts?.let { objectMapper.writeValueAsString(it) } ?: "$location 지역의 상세 날씨 정보를 가져올 수 없습니다."
-            log.info("✅ [TOOL RESULT] getRegionalWeatherDetails - 결과: $result")
+            log.debug("✅ [TOOL RESULT] getRegionalWeatherDetails - 결과: $result")
             result
         } catch (e: Exception) {
             log.error("❌ [TOOL ERROR] getRegionalWeatherDetails - 예외 발생: ${e.javaClass.name}", e)

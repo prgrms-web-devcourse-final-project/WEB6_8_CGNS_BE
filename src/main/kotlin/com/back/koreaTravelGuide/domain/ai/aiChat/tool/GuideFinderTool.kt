@@ -23,17 +23,17 @@ class GuideFinderTool(
         )
         region: String,
     ): String {
-        log.info("🔧 [TOOL CALLED] findGuidesByRegion - region: $region")
+        log.debug("🔧 [TOOL CALLED] findGuidesByRegion - region: $region")
 
         val guides = guideService.findGuidesByRegion(region)
 
         return try {
             if (guides.isEmpty()) {
-                log.info("✅ [TOOL RESULT] findGuidesByRegion - 결과 없음")
+                log.debug("✅ [TOOL RESULT] findGuidesByRegion - 결과 없음")
                 return "해당 지역에서 활동하는 가이드를 찾을 수 없습니다."
             }
             val result = objectMapper.writeValueAsString(guides)
-            log.info("✅ [TOOL RESULT] findGuidesByRegion - 결과: ${result.take(200)}...")
+            log.debug("✅ [TOOL RESULT] findGuidesByRegion - 결과: ${result.take(200)}...")
             result
         } catch (e: Exception) {
             log.error("❌ [TOOL ERROR] findGuidesByRegion - 예외 발생: ${e.javaClass.name}", e)
