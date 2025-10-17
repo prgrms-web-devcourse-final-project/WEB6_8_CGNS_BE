@@ -6,6 +6,7 @@ import com.back.koreaTravelGuide.domain.ai.aiChat.entity.AiChatSession
 import com.back.koreaTravelGuide.domain.ai.aiChat.entity.SenderType
 import com.back.koreaTravelGuide.domain.ai.aiChat.repository.AiChatMessageRepository
 import com.back.koreaTravelGuide.domain.ai.aiChat.repository.AiChatSessionRepository
+import org.slf4j.LoggerFactory
 import org.springframework.ai.chat.client.ChatClient
 import org.springframework.ai.chat.memory.ChatMemory
 import org.springframework.stereotype.Service
@@ -16,6 +17,8 @@ class AiChatService(
     private val aiChatSessionRepository: AiChatSessionRepository,
     private val chatClient: ChatClient,
 ) {
+    private val logger = LoggerFactory.getLogger(AiChatService::class.java)
+
     fun getSessions(userId: Long): List<AiChatSession> {
         return aiChatSessionRepository.findByUserIdOrderByCreatedAtDesc(userId)
     }
@@ -73,6 +76,7 @@ class AiChatService(
                     .call()
                     .content() ?: BuildConfig.AI_ERROR_FALLBACK
             } catch (e: Exception) {
+                logger.error("AI 응답 생성 중 오류 발생 - sessionId: $sessionId, userId: $userId", e)
                 BuildConfig.AI_ERROR_FALLBACK
             }
 
@@ -115,6 +119,7 @@ class AiChatService(
                     .call()
                     .content() ?: session.sessionTitle
             } catch (e: Exception) {
+                logger.error("AI 세션 제목 생성 중 오류 발생 - sessionId: ${session.id}", e)
                 session.sessionTitle
             }
         session.sessionTitle = newTitle.take(100)
