@@ -58,9 +58,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-websocket")
     implementation("org.springframework.boot:spring-boot-starter-amqp")
 
-    // 레디스 - 캐싱 및 세션 관리
+    // 레디스 - 캐싱 전용 (JWT 기반 인증으로 세션 불필요)
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
-    implementation("org.springframework.session:spring-session-data-redis")
 
     // API 문서화 - Swagger UI
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0")
