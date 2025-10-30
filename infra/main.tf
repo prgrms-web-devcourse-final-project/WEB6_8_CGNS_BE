@@ -296,8 +296,8 @@ services:
       TZ: Asia/Seoul
       RABBITMQ_DEFAULT_USER: admin
       # 2025-10-14: RabbitMQ 비밀번호 환경변수 치환 문제 수정
-      # 기존: RABBITMQ_DEFAULT_PASS: ${PASSWORD_1} (docker-compose에서 빈 문자열로 치환됨)
-      # 수정: RABBITMQ_DEFAULT_PASS: ${var.password_1} (Terraform 변수로 직접 치환)
+      # 기존: RABBITMQ_DEFAULT_PASS: $${PASSWORD_1} (docker-compose에서 빈 문자열로 치환됨)
+      # 수정: RABBITMQ_DEFAULT_PASS: $${var.password_1} (Terraform 변수로 직접 치환)
       RABBITMQ_DEFAULT_PASS: ${var.password_1}
     volumes:
       - /dockerProjects/rabbitmq_1/volumes/etc/rabbitmq:/etc/rabbitmq

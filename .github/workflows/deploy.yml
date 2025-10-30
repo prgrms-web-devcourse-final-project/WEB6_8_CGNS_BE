@@ -1,4 +1,4 @@
-name: deploy.yml
+dname: deploy.yml
 
 env:
   IMAGE_REPOSITORY: team11 # GHCR 이미지 리포지토리명(소유자 포함 X)
